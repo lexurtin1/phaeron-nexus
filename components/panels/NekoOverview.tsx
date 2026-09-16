@@ -37,15 +37,22 @@ import {
 import { HealthDot } from "@/components/ui";
 import { RegionalTrafficMap } from "@/components/maps/RegionalTrafficMap";
 
-const TREND = Array.from({ length: 24 }, (_, i) => {
-  const hour = i;
-  const base = 800 + Math.sin(i / 3) * 220 + (i > 16 ? 180 : 0);
-  return {
-    time: `${String(hour).padStart(2, "0")}:00`,
-    api: Math.round(base + (i % 5) * 40),
-    eval: Math.round(base * 0.35 + 120),
-  };
-});
+const TREND = (() => {
+  // Operational spike profile — sharp peaks, troughs, and incident dips
+  const apiProfile = [
+    180, 2100, 90, 2450, 220, 2800, 60, 1980, 340, 2650, 110, 1720, 80, 2550,
+    150, 2280, 70, 2900, 200, 1850, 95, 2700, 140, 2150,
+  ];
+  const evalProfile = [
+    60, 980, 40, 1420, 90, 1680, 30, 1210, 120, 1550, 45, 890, 35, 1480, 55,
+    1320, 25, 1750, 80, 1100, 40, 1600, 70, 1250,
+  ];
+  return apiProfile.map((api, i) => ({
+    time: `${String(i).padStart(2, "0")}:00`,
+    api,
+    eval: evalProfile[i],
+  }));
+})();
 
 function StatCard({
   label,
@@ -61,24 +68,24 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
+    <div className="flex aspect-square flex-col justify-between rounded-xl border border-[#e2e8f0] bg-white p-3.5 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
       <div
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
+        className="flex h-9 w-9 items-center justify-center rounded-lg"
         style={{ backgroundColor: `${color}14` }}
       >
         <Icon className="h-4 w-4" style={{ color }} />
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[11px] font-medium uppercase tracking-[0.14em] text-[#64748b]">
+      <div className="min-w-0">
+        <p className="truncate text-2xl font-semibold leading-none tabular-nums text-[#0a1628]">
+          {value}
+        </p>
+        <p className="mt-2 truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
           {label}
         </p>
         {sub && (
-          <p className="mt-0.5 truncate text-[11px] text-[#94a3b8]">{sub}</p>
+          <p className="mt-1 truncate text-[11px] text-[#94a3b8]">{sub}</p>
         )}
       </div>
-      <p className="shrink-0 text-lg font-semibold leading-none tabular-nums text-[#0a1628]">
-        {value}
-      </p>
     </div>
   );
 }
@@ -218,7 +225,7 @@ export function NekoOverview() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-3 content-start">
           {kpiItems.map((item) => (
             <StatCard key={item.label} {...item} />
           ))}
@@ -235,7 +242,7 @@ export function NekoOverview() {
               Fleet Activity Trend
             </p>
             <p className="text-[12px] text-[#94a3b8]">
-              API calls vs evaluation completions · last 24h
+              Volatile ops load · API spikes vs eval bursts · last 24h
             </p>
           </div>
           <div className="flex gap-1 rounded-lg bg-[#f4f6f9] p-0.5">
@@ -273,7 +280,13 @@ export function NekoOverview() {
                 tickLine={false}
                 interval={3}
               />
-              <YAxis hide />
+              <YAxis
+                width={36}
+                tick={{ fontSize: 10, fill: "#94a3b8" }}
+                axisLine={false}
+                tickLine={false}
+                domain={[0, "auto"]}
+              />
               <Tooltip
                 contentStyle={{
                   borderRadius: 10,
@@ -284,20 +297,22 @@ export function NekoOverview() {
                 }}
               />
               <Area
-                type="monotone"
+                type="linear"
                 dataKey="api"
                 name="API"
                 stroke="#0a1628"
                 fill="url(#apiFill)"
-                strokeWidth={2}
+                strokeWidth={2.25}
+                isAnimationActive={false}
               />
               <Area
-                type="monotone"
+                type="linear"
                 dataKey="eval"
                 name="Evals"
                 stroke="#e11d48"
                 fill="url(#evalFill)"
-                strokeWidth={2}
+                strokeWidth={2.25}
+                isAnimationActive={false}
               />
             </AreaChart>
           </ResponsiveContainer>

@@ -43,44 +43,39 @@ export function Sidebar() {
         : "bg-amber-500";
 
   return (
-    <aside className="hidden lg:flex w-64 h-screen sticky top-0 flex-col border-r border-[#e2e8f0] bg-white/95 backdrop-blur-md">
-      <div className="flex items-start gap-3 p-6 border-b border-[#e2e8f0]">
+    <aside className="hidden lg:flex w-72 h-screen sticky top-0 flex-col border-r border-[#e2e8f0] bg-white">
+      <div className="border-b border-[#e2e8f0] px-5 pt-5 pb-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/assets/phaeron-logo.png"
+          src="/assets/phaeron-wordmark.png"
           alt="Phaeron"
-          className="h-11 w-11 rounded-xl object-contain bg-[#f4f6f9] p-1"
+          className="block w-full h-auto max-h-[80px] object-contain object-left"
         />
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <h1 className="font-bold text-xl leading-tight text-[#0a1628]">
-              NEXUS
-            </h1>
-            <span className="relative inline-flex h-2.5 w-2.5" title="Fleet status">
-              <span
-                className={cn(
-                  "absolute inline-flex h-full w-full rounded-full opacity-70 animate-ping",
-                  statusClass
-                )}
-              />
-              <span
-                className={cn(
-                  "relative inline-flex h-2.5 w-2.5 rounded-full",
-                  statusClass
-                )}
-              />
-            </span>
-          </div>
-          <p className="text-[11px] text-[#64748b] leading-snug mt-0.5">
-            Internal Management System
-          </p>
-          <p className="text-[10px] text-[#94a3b8] leading-snug">
-            Clients · Fleet · Revenue · GraphRAG
-          </p>
+        <div className="mt-3 flex items-center gap-2">
+          <h1 className="font-bold text-lg leading-none text-[#0a1628]">
+            NEXUS
+          </h1>
+          <span className="relative inline-flex h-2.5 w-2.5" title="Fleet status">
+            <span
+              className={cn(
+                "absolute inline-flex h-full w-full rounded-full opacity-70 animate-ping",
+                statusClass
+              )}
+            />
+            <span
+              className={cn(
+                "relative inline-flex h-2.5 w-2.5 rounded-full",
+                statusClass
+              )}
+            />
+          </span>
         </div>
+        <p className="mt-1 text-[12px] font-medium text-[#334155] leading-snug">
+          Internal Management System
+        </p>
       </div>
 
-      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {NAV.map((item) => {
           const active =
             item.href === "/"
@@ -92,13 +87,19 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
                 active
-                  ? "bg-[#0a1628] text-white shadow-sm"
-                  : "text-[#64748b] hover:bg-[#f4f6f9] hover:text-[#0a1628]"
+                  ? "bg-[#0a1628] !text-white shadow-sm"
+                  : "text-[#0a1628] hover:bg-[#f4f6f9]"
               )}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <Icon
+                className={cn(
+                  "h-5 w-5 shrink-0",
+                  active ? "!text-white" : "text-[#0a1628]"
+                )}
+                strokeWidth={2.25}
+              />
               {item.label}
             </Link>
           );
