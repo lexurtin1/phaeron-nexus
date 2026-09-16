@@ -1,5 +1,5 @@
 declare module "react-simple-maps" {
-  import type { ComponentType, CSSProperties, ReactNode } from "react";
+  import type { ComponentType, CSSProperties, MouseEvent, ReactNode } from "react";
 
   export interface ComposableMapProps {
     projection?: string;
@@ -24,7 +24,13 @@ declare module "react-simple-maps" {
   }
 
   export const ComposableMap: ComponentType<ComposableMapProps>;
-  export const ZoomableGroup: ComponentType<{ children?: ReactNode }>;
+  export const ZoomableGroup: ComponentType<{
+    children?: ReactNode;
+    center?: [number, number];
+    zoom?: number;
+    minZoom?: number;
+    maxZoom?: number;
+  }>;
   export const Geographies: ComponentType<{
     geography: string;
     children: (args: GeographiesChildrenArgs) => ReactNode;
@@ -39,7 +45,8 @@ declare module "react-simple-maps" {
       hover?: CSSProperties;
       pressed?: CSSProperties;
     };
-    onMouseEnter?: (event: React.MouseEvent) => void;
-    onMouseLeave?: (event: React.MouseEvent) => void;
+    onMouseEnter?: (event: MouseEvent) => void;
+    onMouseLeave?: (event: MouseEvent) => void;
+    onClick?: (event: MouseEvent) => void;
   }>;
 }

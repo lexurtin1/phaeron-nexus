@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -8,8 +9,10 @@ import {
   CheckCircle2,
   Link2,
   Server,
+  X,
   Zap,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -25,6 +28,7 @@ import {
   globalKpis,
   incidents,
   networkEvents,
+  opportunities,
   regionalHealth,
 } from "@/data/mock";
 import {
@@ -38,7 +42,6 @@ import { HealthDot } from "@/components/ui";
 import { RegionalTrafficMap } from "@/components/maps/RegionalTrafficMap";
 
 const TREND = (() => {
-  // Operational spike profile — sharp peaks, troughs, and incident dips
   const apiProfile = [
     180, 2100, 90, 2450, 220, 2800, 60, 1980, 340, 2650, 110, 1720, 80, 2550,
     150, 2280, 70, 2900, 200, 1850, 95, 2700, 140, 2150,
@@ -54,39 +57,62 @@ const TREND = (() => {
   }));
 })();
 
+type KpiKey =
+  | "deployments"
+  | "uptime"
+  | "incidents"
+  | "evals"
+  | "api"
+  | "pipeline";
+
 function StatCard({
   label,
   value,
   sub,
   icon: Icon,
   color,
+  active,
+  onClick,
 }: {
   label: string;
   value: string;
   sub?: string;
   icon: React.ElementType;
   color: string;
+  active?: boolean;
+  onClick?: () => void;
 }) {
   return (
-    <div className="flex aspect-square flex-col justify-between rounded-xl border border-[#e2e8f0] bg-white p-3.5 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
-      <div
-        className="flex h-9 w-9 items-center justify-center rounded-lg"
-        style={{ backgroundColor: `${color}14` }}
-      >
-        <Icon className="h-4 w-4" style={{ color }} />
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full flex-col rounded-xl border bg-white p-3 text-left shadow-[0_1px_2px_rgba(10,22,40,0.04)] transition ${
+        active
+          ? "border-[#e11d48] ring-2 ring-[#e11d48]/20"
+          : "border-[#e2e8f0] hover:border-[#0a1628]/30"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div
+          className="flex h-8 w-8 items-center justify-center rounded-md"
+          style={{ backgroundColor: `${color}14` }}
+        >
+          <Icon className="h-3.5 w-3.5" style={{ color }} />
+        </div>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#94a3b8]">
+          Click
+        </span>
       </div>
-      <div className="min-w-0">
-        <p className="truncate text-2xl font-semibold leading-none tabular-nums text-[#0a1628]">
-          {value}
-        </p>
-        <p className="mt-2 truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
-          {label}
-        </p>
-        {sub && (
-          <p className="mt-1 truncate text-[11px] text-[#94a3b8]">{sub}</p>
-        )}
-      </div>
-    </div>
+      <p className="mt-2 truncate text-xl font-semibold leading-none tabular-nums text-[#0a1628]">
+        {value}
+      </p>
+      <p className="mt-1.5 truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+        {label}
+      </p>
+      {sub && (
+        <p className="mt-0.5 truncate text-[11px] text-[#94a3b8]">{sub}</p>
+      )}
+    </button>
   );
 }
 
@@ -151,6 +177,7 @@ function RankRow({
 }
 
 export function NekoOverview() {
+  const [selectedKpi, setSelectedKpi] = useState<KpiKey | null>(null);
   const kpis = globalKpis();
   const summary = commercialSummary();
   const regions = regionalHealth();
@@ -163,9 +190,22 @@ export function NekoOverview() {
     .sort((a, b) => b.cpuUtil - a.cpuUtil)
     .slice(0, 6);
   const openIncidents = incidents.filter((i) => i.status !== "resolved");
+  const liveClients = clients.filter((c) =>
+    ["live", "ramped", "deploying"].includes(c.maturity)
+  );
+  const totalApi = clients.reduce((s, c) => s + c.apiCalls24h, 0);
+  const totalArr = clients.reduce((s, c) => s + c.arr, 0);
 
-  const kpiItems = [
+  const kpiItems: {
+    key: KpiKey;
+    label: string;
+    value: string;
+    sub: string;
+    icon: React.ElementType;
+    color: string;
+  }[] = [
     {
+      key: "deployments",
       label: "Active Deployments",
       value: String(kpis.activeDeployments),
       sub: `${clients.length} managed accounts`,
@@ -173,6 +213,7 @@ export function NekoOverview() {
       color: "#0a1628",
     },
     {
+      key: "uptime",
       label: "Fleet Uptime",
       value: `${kpis.fleetUptime.toFixed(2)}%`,
       sub: "Across live runtimes",
@@ -180,6 +221,7 @@ export function NekoOverview() {
       color: "#059669",
     },
     {
+      key: "incidents",
       label: "Open Incidents",
       value: String(kpis.openIncidents),
       sub: "Requires ops attention",
@@ -187,6 +229,7 @@ export function NekoOverview() {
       color: "#e11d48",
     },
     {
+      key: "evals",
       label: "Evals Passing",
       value: `${kpis.evaluationsPassing}/${kpis.evaluationsTotal}`,
       sub: "Score ≥ 85",
@@ -194,13 +237,15 @@ export function NekoOverview() {
       color: "#6d5ce7",
     },
     {
+      key: "api",
       label: "API Calls 24h",
-      value: formatNumber(clients.reduce((s, c) => s + c.apiCalls24h, 0)),
+      value: formatNumber(totalApi),
       sub: "Managed deployment traffic",
       icon: Zap,
       color: "#1a365d",
     },
     {
+      key: "pipeline",
       label: "Open Pipeline",
       value: formatCurrency(summary.totalOpen, true),
       sub: `Weighted ${formatCurrency(summary.weighted, true)}`,
@@ -208,6 +253,114 @@ export function NekoOverview() {
       color: "#be123c",
     },
   ];
+
+  const kpiDetail = useMemo(() => {
+    if (!selectedKpi) return null;
+    switch (selectedKpi) {
+      case "deployments":
+        return {
+          title: "Active Deployments",
+          blurb:
+            "Accounts currently live, ramped, or deploying on the Phaeron management plane.",
+          rows: liveClients.map((c) => ({
+            label: c.name,
+            meta: `${c.city} · ${c.maturity}`,
+            value: healthLabel(c.health),
+            href: `/clients/${c.id}`,
+            health: c.health,
+          })),
+        };
+      case "uptime":
+        return {
+          title: "Fleet Uptime",
+          blurb: `Fleet average ${kpis.fleetUptime.toFixed(2)}%. Lowest accounts need attention first.`,
+          rows: [...clients]
+            .sort((a, b) => a.uptime - b.uptime)
+            .slice(0, 8)
+            .map((c) => ({
+              label: c.name,
+              meta: `${c.city} · P99 ${c.latencyP99}ms`,
+              value: formatPercent(c.uptime),
+              href: `/clients/${c.id}`,
+              health: c.health,
+            })),
+        };
+      case "incidents":
+        return {
+          title: "Open Incidents",
+          blurb: "Unresolved operational events across managed deployments.",
+          rows: openIncidents.map((i) => ({
+            label: i.title,
+            meta: `${i.clientName} · ${relativeTime(i.openedAt)}`,
+            value: i.severity,
+            href: i.clientId ? `/clients/${i.clientId}` : "/infrastructure",
+            health:
+              i.severity === "critical"
+                ? ("critical" as const)
+                : i.severity === "high"
+                  ? ("warning" as const)
+                  : ("healthy" as const),
+          })),
+        };
+      case "evals":
+        return {
+          title: "Evaluation Coverage",
+          blurb: "Grounding / eval scores across the managed client fleet.",
+          rows: [...clients]
+            .sort((a, b) => a.evaluationScore - b.evaluationScore)
+            .map((c) => ({
+              label: c.name,
+              meta: `Runtime ${c.runtimeVersion}`,
+              value: c.evaluationScore.toFixed(1),
+              href: `/clients/${c.id}`,
+              health:
+                c.evaluationScore >= 85
+                  ? ("healthy" as const)
+                  : c.evaluationScore >= 80
+                    ? ("warning" as const)
+                    : ("critical" as const),
+            })),
+        };
+      case "api":
+        return {
+          title: "API Traffic · 24h",
+          blurb: `Total ${formatNumber(totalApi)} managed calls in the last day.`,
+          rows: [...clients]
+            .sort((a, b) => b.apiCalls24h - a.apiCalls24h)
+            .slice(0, 10)
+            .map((c) => ({
+              label: c.name,
+              meta: `${c.city} · err ${c.errorRate}%`,
+              value: formatNumber(c.apiCalls24h),
+              href: `/clients/${c.id}`,
+              health: c.health,
+            })),
+        };
+      case "pipeline":
+        return {
+          title: "Open Pipeline",
+          blurb: `Gross ${formatCurrency(summary.totalOpen, true)} · weighted ${formatCurrency(summary.weighted, true)} · booked ARR ${formatCurrency(totalArr, true)}.`,
+          rows: opportunities.map((o) => ({
+            label: o.clientName,
+            meta: `${o.stage} · ${o.owner}`,
+            value: formatCurrency(o.value, true),
+            href: o.clientId ? `/clients/${o.clientId}` : "/revenue",
+            health: o.health,
+          })),
+        };
+      default:
+        return null;
+    }
+  }, [
+    selectedKpi,
+    liveClients,
+    kpis.fleetUptime,
+    openIncidents,
+    totalApi,
+    summary.totalOpen,
+    summary.weighted,
+    totalArr,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -220,17 +373,95 @@ export function NekoOverview() {
         </h2>
         <p className="mt-0.5 text-[13px] text-[#64748b]">
           Operational overview for account health, deployment traffic, and
-          commercial pipeline.
+          commercial pipeline. Click any KPI tile to drill in.
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
-        <div className="grid grid-cols-2 gap-3 content-start">
-          {kpiItems.map((item) => (
-            <StatCard key={item.label} {...item} />
-          ))}
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2.5 content-start">
+            {kpiItems.map((item) => (
+              <StatCard
+                key={item.key}
+                label={item.label}
+                value={item.value}
+                sub={item.sub}
+                icon={item.icon}
+                color={item.color}
+                active={selectedKpi === item.key}
+                onClick={() =>
+                  setSelectedKpi((prev) =>
+                    prev === item.key ? null : item.key
+                  )
+                }
+              />
+            ))}
+          </div>
+
+          <AnimatePresence>
+            {kpiDetail && (
+              <motion.div
+                key={kpiDetail.title}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="rounded-xl border border-[#e11d48]/25 bg-white p-4 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
+                  <div className="mb-2 flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#e11d48]">
+                        KPI detail
+                      </p>
+                      <h3 className="text-base font-semibold text-[#0a1628]">
+                        {kpiDetail.title}
+                      </h3>
+                      <p className="mt-0.5 text-[12px] text-[#64748b]">
+                        {kpiDetail.blurb}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedKpi(null)}
+                      className="rounded-lg border border-[#e2e8f0] p-1.5 text-[#64748b]"
+                      aria-label="Close KPI detail"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <ul className="max-h-64 space-y-1.5 overflow-y-auto">
+                    {kpiDetail.rows.map((row) => (
+                      <li key={`${row.label}-${row.meta}`}>
+                        <Link
+                          href={row.href}
+                          className="flex items-center justify-between gap-2 rounded-lg px-2 py-2 hover:bg-[#f4f6f9]"
+                        >
+                          <div className="flex min-w-0 items-center gap-2">
+                            {"health" in row && row.health && (
+                              <HealthDot status={row.health} />
+                            )}
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-[#0a1628]">
+                                {row.label}
+                              </p>
+                              <p className="truncate text-[11px] text-[#64748b]">
+                                {row.meta}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="shrink-0 text-sm font-semibold tabular-nums text-[#0a1628]">
+                            {row.value}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        <div className="min-h-[520px] lg:min-h-0">
+        <div className="min-h-[420px] lg:min-h-[480px]">
           <RegionalTrafficMap compact />
         </div>
       </div>

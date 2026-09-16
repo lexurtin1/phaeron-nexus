@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { domainPacks, incidents, tasks } from "@/data/mock";
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+} from "recharts";
+import { domainPacks, incidents, resolveClientIntel, tasks } from "@/data/mock";
 import type { Client } from "@/data/types";
 import { useNexusStore } from "@/lib/store";
 import {
@@ -36,9 +43,19 @@ export function ClientDossier({ client }: { client: Client }) {
   const clientTasks = tasks.filter((t) => t.clientId === client.id);
   const clientIncidents = incidents.filter((i) => i.clientId === client.id);
   const packs = domainPacks.filter((p) => p.deployedTo.includes(client.id));
+  const intel = resolveClientIntel(client);
   const outdatedPack =
-    client.ontologyVersion < "4.2.0" ||
-    client.runtimeVersion < "2.4.0";
+    client.ontologyVersion < "4.2.0" || client.runtimeVersion < "2.4.0";
+
+  const trafficSeries = client.deployment.sparklines.uptime.map((p, i) => ({
+    t: p.t,
+    api: Math.round(
+      client.apiCalls24h / 24 +
+        Math.sin(i / 2) * (client.apiCalls24h / 40) +
+        (i % 3) * 40
+    ),
+    latency: client.deployment.sparklines.latency[i]?.v ?? client.latencyP99,
+  }));
 
   const metrics = [
     {
@@ -46,7 +63,7 @@ export function ClientDossier({ client }: { client: Client }) {
       value: healthLabel(client.deployment.runtimeStatus),
       status: client.deployment.runtimeStatus,
       spark: client.deployment.sparklines.uptime,
-      color: "#1e4da0",
+      color: "#0a1628",
     },
     {
       label: "Kubernetes",
@@ -60,7 +77,7 @@ export function ClientDossier({ client }: { client: Client }) {
       value: healthLabel(client.deployment.apiGateway),
       status: client.deployment.apiGateway,
       spark: client.deployment.sparklines.latency,
-      color: "#1e4da0",
+      color: "#0a1628",
     },
     {
       label: "Uptime",
@@ -91,7 +108,7 @@ export function ClientDossier({ client }: { client: Client }) {
             ? ("warning" as const)
             : ("healthy" as const),
       spark: client.deployment.sparklines.errors,
-      color: "#dc2626",
+      color: "#e11d48",
     },
     {
       label: "Evaluation",
@@ -103,7 +120,7 @@ export function ClientDossier({ client }: { client: Client }) {
             ? ("warning" as const)
             : ("critical" as const),
       spark: client.deployment.sparklines.evaluation,
-      color: "#1e4da0",
+      color: "#6d5ce7",
     },
     {
       label: "Last Call",
@@ -139,29 +156,167 @@ export function ClientDossier({ client }: { client: Client }) {
             <div className="mt-3 flex flex-wrap gap-1.5">
               <Tag>{maturityLabel(client.maturity)}</Tag>
               <Tag>{client.commercialStage}</Tag>
+              <Tag>Tier · {intel.pricingTier}</Tag>
               <Tag>Owner {client.accountOwner}</Tag>
             </div>
           </div>
-          <Badge
-            tone={
-              client.health === "healthy"
-                ? "healthy"
-                : client.health === "warning"
-                  ? "warning"
-                  : "critical"
-            }
-            className="px-3 py-1.5 text-[11px]"
-          >
-            <span className="live-pulse inline-block">●</span>{" "}
-            {healthLabel(client.health)}
-          </Badge>
+          <div className="text-right">
+            <Badge
+              tone={
+                client.health === "healthy"
+                  ? "healthy"
+                  : client.health === "warning"
+                    ? "warning"
+                    : "critical"
+              }
+              className="px-3 py-1.5 text-[11px]"
+            >
+              <span className="live-pulse inline-block">●</span>{" "}
+              {healthLabel(client.health)}
+            </Badge>
+            <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+              ARR
+            </p>
+            <p className="text-2xl font-semibold tabular-nums text-[#0a1628]">
+              {client.arr ? formatCurrency(client.arr, true) : "—"}
+            </p>
+            <p className="text-[12px] text-[#64748b]">
+              MRR {formatCurrency(intel.mrr, true)} · YTD{" "}
+              {formatCurrency(intel.ytdRevenue, true)}
+            </p>
+          </div>
         </div>
       </header>
 
-      <section className="mb-5">
-        <h2 className="mb-3 font-display text-[24px] text-[var(--color-navy-deep)]">
-          Deployment Health
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+            Pricing tier
+          </p>
+          <p className="mt-1 text-xl font-semibold text-[#0a1628]">
+            {intel.pricingTier}
+          </p>
+          <p className="mt-1 text-[12px] text-[#64748b]">
+            Contracted ARR {formatCurrency(client.arr || intel.mrr * 12, true)}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+            Last meeting
+          </p>
+          <p className="mt-1 text-sm font-semibold text-[#0a1628]">
+            {intel.lastMeeting.title}
+          </p>
+          <p className="mt-1 text-[12px] text-[#64748b]">
+            {relativeTime(intel.lastMeeting.date)}
+            {intel.lastMeeting.location ? ` · ${intel.lastMeeting.location}` : ""}
+          </p>
+          <p className="mt-1 text-[11px] text-[#94a3b8]">
+            {intel.lastMeeting.attendees.join(" · ")}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#e11d48]">
+            Next meeting
+          </p>
+          <p className="mt-1 text-sm font-semibold text-[#0a1628]">
+            {intel.nextMeeting.title}
+          </p>
+          <p className="mt-1 text-[12px] text-[#64748b]">
+            {new Date(intel.nextMeeting.date).toLocaleString("en-GB", {
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+            {intel.nextMeeting.location ? ` · ${intel.nextMeeting.location}` : ""}
+          </p>
+          <p className="mt-1 text-[11px] text-[#94a3b8]">
+            {intel.nextMeeting.attendees.join(" · ")}
+          </p>
+        </Card>
+      </div>
+
+      <Card>
+        <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+          Phaeron products in use
         </h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {intel.products.map((p) => (
+            <span
+              key={p}
+              className="rounded-lg border border-[#0a1628]/15 bg-[#0a1628]/5 px-3 py-1.5 text-[12px] font-semibold text-[#0a1628]"
+            >
+              {p}
+            </span>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {packs.map((p) => (
+            <Tag key={p.id}>
+              Domain pack · {p.name} · {p.version}
+            </Tag>
+          ))}
+        </div>
+      </Card>
+
+      <section>
+        <h2 className="mb-3 font-display text-[24px] text-[var(--color-navy-deep)]">
+          Network & operational stats
+        </h2>
+        <div className="mb-4 rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-semibold text-[#0a1628]">
+              Traffic · latency overlay (24h)
+            </p>
+            <p className="text-[11px] text-[#64748b]">
+              {formatNumber(client.apiCalls24h)} calls · P99{" "}
+              {formatLatency(client.latencyP99)}
+            </p>
+          </div>
+          <div className="h-[180px] w-full">
+            <ResponsiveContainer>
+              <AreaChart data={trafficSeries}>
+                <defs>
+                  <linearGradient id="clientApi" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#0a1628" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#0a1628" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="t"
+                  tick={{ fontSize: 10, fill: "#94a3b8" }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval={3}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: 10,
+                    border: "1px solid #e2e8f0",
+                    fontSize: 12,
+                  }}
+                />
+                <Area
+                  type="linear"
+                  dataKey="api"
+                  name="API"
+                  stroke="#0a1628"
+                  fill="url(#clientApi)"
+                  strokeWidth={2}
+                />
+                <Area
+                  type="linear"
+                  dataKey="latency"
+                  name="Latency"
+                  stroke="#e11d48"
+                  fill="transparent"
+                  strokeWidth={1.75}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {metrics.map((m) => (
             <Card key={m.label} className="space-y-2">
@@ -180,79 +335,36 @@ export function ClientDossier({ client }: { client: Client }) {
         </div>
       </section>
 
-      <div className="mb-5 grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
-            Ontology State
+            Industry news
           </h2>
-          <p className="mt-1 text-[12px] text-[var(--color-text-muted)]">
-            Master ontology {client.ontologyVersion} · Runtime{" "}
-            {client.runtimeVersion}
-          </p>
-          {outdatedPack && (
-            <p className="mt-2 text-[12px] font-medium text-[var(--color-warning)]">
-              Pack or runtime behind current master — rollout recommended.
-            </p>
-          )}
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {packs.map((p) => (
-              <Tag key={p.id}>
-                {p.name} · {p.version}
-              </Tag>
+          <ul className="mt-3 space-y-3">
+            {intel.news.map((n) => (
+              <li
+                key={n.title}
+                className="rounded-lg border border-[#e2e8f0] bg-[#f4f6f9]/70 px-3 py-2.5"
+              >
+                <p className="text-sm font-semibold text-[#0a1628]">{n.title}</p>
+                <p className="mt-1 text-[12px] text-[#64748b]">{n.summary}</p>
+                <p className="mt-1 text-[10px] uppercase tracking-[0.1em] text-[#94a3b8]">
+                  {n.source} · {n.date}
+                </p>
+              </li>
             ))}
-          </div>
-          <div className="mt-4 rounded-lg bg-[rgba(30,77,160,0.06)] p-3 text-[12px] text-[var(--color-navy-mid)]">
-            Overlay relative to master 4.2 — {client.domainPacks.length} domain
-            packs active. Open the ontology graph to explore shared concepts.
-          </div>
-          <Link href="/ontology" className="mt-3 inline-block">
-            <Button variant="subtle">Explore ontology graph</Button>
-          </Link>
+          </ul>
         </Card>
 
         <Card>
           <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
-            Commercial Context
-          </h2>
-          <dl className="mt-3 space-y-2 text-[13px]">
-            <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Stage</dt>
-              <dd className="font-semibold">{client.commercialStage}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">ARR</dt>
-              <dd className="font-semibold">
-                {client.arr ? formatCurrency(client.arr, true) : "—"}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Owner</dt>
-              <dd className="font-semibold">{client.accountOwner}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Relationship</dt>
-              <dd className="font-semibold">{client.relationshipScore}/100</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Last contact</dt>
-              <dd className="font-semibold">
-                {relativeTime(client.lastCommercialContact)}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Open opps</dt>
-              <dd className="font-semibold">{client.openOpportunities}</dd>
-            </div>
-          </dl>
-          <Divider className="my-3" />
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
             Key contacts
-          </p>
-          <ul className="space-y-2">
+          </h2>
+          <ul className="mt-3 space-y-2">
             {client.contacts.map((c) => (
               <li
                 key={c.id}
-                className="flex items-center justify-between text-[12px]"
+                className="flex items-center justify-between rounded-lg bg-[#f4f6f9] px-3 py-2 text-[12px]"
               >
                 <span>
                   <span className="font-semibold text-[var(--color-navy-deep)]">
@@ -261,6 +373,9 @@ export function ClientDossier({ client }: { client: Client }) {
                   <span className="text-[var(--color-text-muted)]">
                     {" "}
                     · {c.role}
+                  </span>
+                  <span className="mt-0.5 block text-[11px] text-[#94a3b8]">
+                    {c.email}
                   </span>
                 </span>
                 <Badge
@@ -277,44 +392,75 @@ export function ClientDossier({ client }: { client: Client }) {
               </li>
             ))}
           </ul>
+          <Divider className="my-3" />
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+            Commercial context
+          </h3>
+          <dl className="mt-2 space-y-2 text-[13px]">
+            <div className="flex justify-between">
+              <dt className="text-[var(--color-text-muted)]">Stage</dt>
+              <dd className="font-semibold">{client.commercialStage}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-[var(--color-text-muted)]">Relationship</dt>
+              <dd className="font-semibold">{client.relationshipScore}/100</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-[var(--color-text-muted)]">Open opps</dt>
+              <dd className="font-semibold">{client.openOpportunities}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-[var(--color-text-muted)]">Last contact</dt>
+              <dd className="font-semibold">
+                {relativeTime(client.lastCommercialContact)}
+              </dd>
+            </div>
+          </dl>
         </Card>
       </div>
 
-      <div className="mb-5 grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
-            Recent Activity
+            Ontology state
           </h2>
-          <ul className="mt-3 space-y-2.5">
-            {[
-              `${formatNumber(client.apiCalls24h)} API calls in last 24h`,
-              `Evaluation score ${client.evaluationScore.toFixed(1)}`,
-              `Runtime ${client.runtimeVersion} · Ontology ${client.ontologyVersion}`,
-              ...clientIncidents.map((i) => `Incident: ${i.title}`),
-              `Last commercial contact ${relativeTime(client.lastCommercialContact)}`,
-            ].map((line, i) => (
-              <li
-                key={i}
-                className="flex gap-2 border-b border-[rgba(10,22,40,0.04)] pb-2 text-[13px] last:border-0"
-              >
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-navy-accent)]" />
-                {line}
-              </li>
-            ))}
-          </ul>
+          <p className="mt-1 text-[12px] text-[var(--color-text-muted)]">
+            Master ontology {client.ontologyVersion} · Runtime{" "}
+            {client.runtimeVersion}
+          </p>
+          {outdatedPack && (
+            <p className="mt-2 text-[12px] font-medium text-[var(--color-warning)]">
+              Pack or runtime behind current master — rollout recommended.
+            </p>
+          )}
+          <Link href="/ontology" className="mt-3 inline-block">
+            <Button variant="subtle">Explore ontology graph</Button>
+          </Link>
         </Card>
 
         <Card>
           <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
-            Open Actions
+            Open actions
           </h2>
-          {clientTasks.length === 0 ? (
+          {clientTasks.length === 0 && clientIncidents.length === 0 ? (
             <p className="mt-3 text-[13px] text-[var(--color-text-muted)]">
-              No open actions against this account. Quiet is good — stay
-              oriented.
+              No open actions against this account.
             </p>
           ) : (
             <ul className="mt-3 space-y-2">
+              {clientIncidents.map((i) => (
+                <li
+                  key={i.id}
+                  className="rounded-lg border border-[#e11d48]/20 bg-[#e11d48]/5 p-3"
+                >
+                  <p className="text-[13px] font-semibold text-[#0a1628]">
+                    Incident · {i.title}
+                  </p>
+                  <p className="mt-1 text-[12px] text-[#64748b]">
+                    {i.severity} · {relativeTime(i.openedAt)}
+                  </p>
+                </li>
+              ))}
               {clientTasks.map((t) => (
                 <li
                   key={t.id}

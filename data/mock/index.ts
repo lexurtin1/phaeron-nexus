@@ -21,6 +21,7 @@ import {
   teamActivity,
   teamMembers,
 } from "./team";
+import { resolveClientIntel } from "./clientIntel";
 import type { HealthStatus, Region } from "@/data/types";
 
 export {
@@ -43,6 +44,7 @@ export {
   tasks,
   teamActivity,
   teamMembers,
+  resolveClientIntel,
 };
 
 export function globalKpis() {

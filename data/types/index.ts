@@ -71,6 +71,22 @@ export interface Contact {
   strength: "strong" | "moderate" | "thin";
 }
 
+export type PricingTier = "Pilot" | "Growth" | "Enterprise" | "Strategic";
+
+export interface ClientNewsItem {
+  title: string;
+  source: string;
+  date: string;
+  summary: string;
+}
+
+export interface ClientMeeting {
+  title: string;
+  date: string;
+  attendees: string[];
+  location?: string;
+}
+
 export interface Client {
   id: string;
   name: string;
@@ -99,6 +115,14 @@ export interface Client {
   contacts: Contact[];
   deployment: DeploymentHealth;
   hubActivity: number;
+  /** Commercial / relationship enrichment */
+  pricingTier?: PricingTier;
+  products?: string[];
+  lastMeeting?: ClientMeeting;
+  nextMeeting?: ClientMeeting;
+  news?: ClientNewsItem[];
+  mrr?: number;
+  ytdRevenue?: number;
 }
 
 export interface ClusterService {
