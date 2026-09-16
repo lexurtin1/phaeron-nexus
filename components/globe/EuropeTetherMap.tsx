@@ -86,7 +86,7 @@ export function EuropeTetherMap() {
                   ? "#ef4444"
                   : n.health === "warning"
                     ? "#ff8c42"
-                    : "#7b61ff"
+                    : "#2a4a6e"
               }
               strokeWidth={1.2 + n.hubActivity * 2.2}
               strokeOpacity={0.35 + n.hubActivity * 0.45}
@@ -94,13 +94,13 @@ export function EuropeTetherMap() {
           ))}
 
           <g>
-            <circle cx={hub.x} cy={hub.y} r="10" fill="#7b61ff" />
+            <circle cx={hub.x} cy={hub.y} r="10" fill="#2a4a6e" />
             <circle
               cx={hub.x}
               cy={hub.y}
               r="16"
               fill="none"
-              stroke="#7b61ff"
+              stroke="#2a4a6e"
               strokeOpacity="0.35"
               strokeWidth="2"
             />
@@ -137,7 +137,7 @@ export function EuropeTetherMap() {
                 fontWeight="600"
                 fontFamily="Open Sans, sans-serif"
                 className={cn(
-                  selectedClientId === n.id ? "fill-[#7b61ff]" : "fill-[#475569]"
+                  selectedClientId === n.id ? "fill-[#2a4a6e]" : "fill-[#475569]"
                 )}
               >
                 {n.name}

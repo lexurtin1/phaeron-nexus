@@ -10,7 +10,7 @@ import { useNexusStore } from "@/lib/store";
 import { Badge, Input, Tag } from "@/components/ui";
 
 const NODE_COLOR: Record<OntologyNodeType, string> = {
-  platform: "#7b61ff",
+  platform: "#2a4a6e",
   distributor: "#ff8c42",
   administrator: "#0063ff",
   custodian: "#0f172a",
@@ -150,7 +150,7 @@ export function OntologyGraph() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              <Network className="h-4 w-4 text-[#7b61ff]" />
+              <Network className="h-4 w-4 text-[var(--chart-2)]" />
               Funds Industry GraphRAG
             </p>
             <p className="mt-1 max-w-2xl text-[13px] text-muted-foreground">

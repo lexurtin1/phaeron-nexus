@@ -76,7 +76,7 @@ export function Sidebar() {
           >
             <span
               className={cn(
-                "absolute inline-flex h-full w-full animate-ping rounded-full opacity-70",
+                "absolute inline-flex h-full w-full animate-ping rounded-full opacity-70", // unslop-ignore: status ping
                 statusClass
               )}
             />
@@ -105,7 +105,7 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
+                "flex items-center gap-3 rounded-md px-3 py-2.5 text-[15px] font-semibold transition-colors",
                 active
                   ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -119,7 +119,7 @@ export function Sidebar() {
       </nav>
 
       <div className="space-y-2 border-t border-sidebar-border p-4">
-        <div className="flex items-center gap-2 rounded-xl bg-sidebar-accent px-3 py-2.5">
+        <div className="flex items-center gap-2 rounded-md bg-sidebar-accent px-3 py-2.5">
           <Activity className="h-4 w-4 text-primary" />
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

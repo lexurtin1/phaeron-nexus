@@ -9,7 +9,6 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
-import { AnimatePresence, motion } from "framer-motion";
 import { Globe, Info, X } from "lucide-react";
 import { clients } from "@/data/mock";
 import type { Client } from "@/data/types";
@@ -227,14 +226,9 @@ export function RegionalTrafficMap({ compact = false }: { compact?: boolean }) {
           Click a country to inspect live clients
         </div>
 
-        <AnimatePresence>
+        
           {selectedCode && selectedStat && (
-            <motion.div
-              key={selectedCode}
-              initial={{ opacity: 0, y: 24, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 16, scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
+            <div
               className="absolute inset-2 z-20 overflow-hidden rounded-xl border border-[#e2e8f0] bg-white/97 shadow-[0_12px_40px_rgba(10,22,40,0.16)] backdrop-blur"
             >
               <div className="flex items-start justify-between border-b border-[#e2e8f0] px-4 py-3">
@@ -261,48 +255,43 @@ export function RegionalTrafficMap({ compact = false }: { compact?: boolean }) {
                 </button>
               </div>
               <ul className="max-h-[calc(100%-72px)] space-y-2 overflow-y-auto p-3">
-                {selectedClients.map((c, i) => (
-                  <motion.li
-                    key={c.id}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 * i }}
-                  >
+                {selectedClients.map((c) => (
+                  <li key={c.id}>
                     <Link
                       href={`/clients/${c.id}`}
-                      className="block rounded-xl border border-[#e2e8f0] bg-[#f4f6f9]/80 px-3 py-2.5 transition hover:border-[#0a1628]/25 hover:bg-white"
+                      className="block rounded-md border border-border bg-muted/40 px-3 py-2.5 transition hover:border-primary/30 hover:bg-card"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex min-w-0 items-center gap-2">
                           <HealthDot status={c.health} />
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-[#0a1628]">
+                            <p className="truncate text-sm font-semibold text-foreground">
                               {c.name}
                             </p>
-                            <p className="truncate text-[11px] text-[#64748b]">
+                            <p className="truncate text-[11px] text-muted-foreground">
                               {c.city} · {healthLabel(c.health)} ·{" "}
                               {formatNumber(c.apiCalls24h)} calls
                             </p>
                           </div>
                         </div>
                         <div className="shrink-0 text-right">
-                          <p className="text-sm font-semibold tabular-nums text-[#0a1628]">
+                          <p className="text-sm font-semibold tabular-nums text-foreground">
                             {c.arr
                               ? formatCurrency(c.arr, true)
                               : "Pilot"}
                           </p>
-                          <p className="text-[10px] text-[#64748b]">
+                          <p className="text-[10px] text-muted-foreground">
                             {formatPercent(c.uptime)}
                           </p>
                         </div>
                       </div>
                     </Link>
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">

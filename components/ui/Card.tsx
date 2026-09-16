@@ -23,7 +23,7 @@ function Card({
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-4 rounded-xl border shadow-xs",
+        "bg-card text-card-foreground flex flex-col gap-4 rounded-md border shadow-xs",
         paddingClass,
         elevated && "shadow-sm",
         className

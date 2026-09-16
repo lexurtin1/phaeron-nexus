@@ -49,13 +49,13 @@ export function TopNav() {
               className={cn(
                 "relative whitespace-nowrap rounded-lg px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors md:px-3 md:text-[12px]",
                 active
-                  ? "text-[var(--color-purple-primary)]"
+                  ? "text-primary"
                   : "text-[var(--color-text-muted)] hover:text-[var(--color-navy-mid)]"
               )}
             >
               {item.label}
               {active && (
-                <span className="absolute inset-x-2 -bottom-[1px] h-[2px] rounded-full bg-[var(--color-purple-accent)] md:inset-x-3" />
+                <span className="absolute inset-x-2 -bottom-[1px] h-[2px] rounded-sm bg-primary md:inset-x-3" />
               )}
             </Link>
           );

@@ -81,7 +81,7 @@ function AnimatedStatCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex w-full flex-col rounded-xl border bg-card p-3.5 text-left shadow-xs transition",
+        "flex w-full flex-col rounded-md border bg-card p-3.5 text-left shadow-xs transition",
         active
           ? "border-primary ring-2 ring-primary/20"
           : "hover:border-primary/40"
@@ -120,7 +120,7 @@ export function StatsCards({ data, activeKey, onSelect }: StatsCardsProps) {
         label="Deployments"
         subvalue="Live · ramped · deploying"
         icon={Building2}
-        color="#3B82F6"
+        color="#0a1628"
         active={activeKey === "deployments"}
         onClick={() => onSelect?.("deployments")}
       />
@@ -129,7 +129,7 @@ export function StatsCards({ data, activeKey, onSelect }: StatsCardsProps) {
         formatter={(n) => formatPercent(n, 2)}
         label="Fleet uptime"
         icon={Server}
-        color="#8B5CF6"
+        color="#2a4a6e"
         active={activeKey === "uptime"}
         onClick={() => onSelect?.("uptime")}
       />
@@ -138,7 +138,7 @@ export function StatsCards({ data, activeKey, onSelect }: StatsCardsProps) {
         formatter={formatNumber}
         label="Open incidents"
         icon={AlertTriangle}
-        color="#EC4899"
+        color="#be123c"
         active={activeKey === "incidents"}
         onClick={() => onSelect?.("incidents")}
       />
@@ -147,7 +147,7 @@ export function StatsCards({ data, activeKey, onSelect }: StatsCardsProps) {
         formatter={(n) => `${n}/${data.evaluationsTotal}`}
         label="Evals passing"
         icon={CheckCircle2}
-        color="#10B981"
+        color="#0f766e"
         active={activeKey === "evals"}
         onClick={() => onSelect?.("evals")}
       />
@@ -156,7 +156,7 @@ export function StatsCards({ data, activeKey, onSelect }: StatsCardsProps) {
         formatter={formatNumber}
         label="API calls · 24h"
         icon={Zap}
-        color="#06B6D4"
+        color="#0e7490"
         active={activeKey === "api"}
         onClick={() => onSelect?.("api")}
       />
@@ -165,7 +165,7 @@ export function StatsCards({ data, activeKey, onSelect }: StatsCardsProps) {
         formatter={(n) => formatCurrency(n, true)}
         label="Pipeline"
         icon={PoundSterling}
-        color="#F59E0B"
+        color="#b45309"
         active={activeKey === "pipeline"}
         onClick={() => onSelect?.("pipeline")}
       />

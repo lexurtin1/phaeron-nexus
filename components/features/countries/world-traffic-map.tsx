@@ -29,16 +29,17 @@ interface WorldTrafficMapProps {
 
 const GEO_URL = "/topojson/countries-110m.json";
 
+/* Sequential steel→navy ramp (Phaeron brand), not indigo/violet */
 const MAP_THEME = {
   light: {
-    noData: "#f1f5f9",
-    stroke: "#cbd5e1",
-    scale: ["#e0e7ff", "#818cf8", "#6366f1", "#4f46e5"],
+    noData: "#eef1f5",
+    stroke: "#c5ced9",
+    scale: ["#d7e0ea", "#7a93b0", "#3d5a80", "#0a1628"], // unslop-ignore: navy brand scale
   },
   dark: {
-    noData: "#1e2536",
+    noData: "#151c28",
     stroke: "rgba(148, 163, 184, 0.18)",
-    scale: ["#312e81", "#4f46e5", "#818cf8", "#c7d2fe"],
+    scale: ["#1a2433", "#3d5a80", "#7a93b0", "#c5d4e8"], // unslop-ignore: navy brand scale
   },
 } as const;
 
@@ -123,7 +124,7 @@ export function WorldTrafficMap({ data, onCountryClick }: WorldTrafficMapProps) 
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="relative aspect-[2/1] w-full overflow-hidden rounded-lg bg-slate-50 dark:bg-slate-900/50">
+        <div className="relative aspect-[2/1] w-full overflow-hidden rounded-md bg-muted/40">
           <ComposableMap
             projection="geoMercator"
             projectionConfig={{
@@ -144,10 +145,10 @@ export function WorldTrafficMap({ data, onCountryClick }: WorldTrafficMapProps) 
                       strokeWidth={0.5}
                       style={{
                         default: { outline: "none", transition: "all 250ms" },
-                        hover: {
+                          hover: {
                           fill:
                             hoveredCountry === geo.properties.name
-                              ? "#f59e0b"
+                              ? "#be123c"
                               : undefined,
                           outline: "none",
                           cursor: "pointer",
@@ -190,7 +191,7 @@ export function WorldTrafficMap({ data, onCountryClick }: WorldTrafficMapProps) 
                     <span>{formatBytes(tooltipData.download)}</span>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <span className="text-purple-500">↑ Upload:</span>
+                    <span className="text-[var(--chart-2)]">↑ Upload:</span>
                     <span>{formatBytes(tooltipData.upload)}</span>
                   </div>
                   <div className="flex justify-between gap-4">

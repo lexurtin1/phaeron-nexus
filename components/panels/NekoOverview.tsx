@@ -12,7 +12,6 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -124,12 +123,12 @@ function RankRow({
           {metric}
         </p>
       </div>
-      <div className="ml-7 h-1.5 overflow-hidden rounded-full bg-muted">
+      <div className="ml-7 h-1.5 overflow-hidden rounded-sm bg-muted">
         <div
-          className="h-full rounded-full"
+          className="h-full rounded-sm"
           style={{
             width: `${Math.max(4, Math.min(100, bar * 100))}%`,
-            background: `linear-gradient(90deg, ${barColor}, var(--chart-2))`,
+            backgroundColor: barColor,
           }}
         />
       </div>
@@ -282,13 +281,7 @@ export function NekoOverview() {
         }
       />
 
-      <AnimatePresence>
-        {kpiDetail && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-          >
+      {kpiDetail && (
             <Card className="border-primary/30">
               <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2">
                 <div>
@@ -339,9 +332,7 @@ export function NekoOverview() {
                 </ul>
               </CardContent>
             </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      )}
 
       <WorldTrafficMap
         data={countryStats}
@@ -350,13 +341,7 @@ export function NekoOverview() {
         }
       />
 
-      <AnimatePresence>
-        {selectedCountry && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-          >
+      {selectedCountry && (
             <Card>
               <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2">
                 <div>
@@ -404,9 +389,7 @@ export function NekoOverview() {
                 </ul>
               </CardContent>
             </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">

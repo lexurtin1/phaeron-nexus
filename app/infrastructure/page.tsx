@@ -205,9 +205,9 @@ export default function InfrastructurePage() {
                       {r.status.replace("_", " ")}
                     </Badge>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-sm bg-muted">
                     <div
-                      className="h-full rounded-full bg-[var(--color-navy-accent)]"
+                      className="h-full rounded-sm bg-[var(--color-navy-accent)]"
                       style={{ width: `${r.progress}%` }}
                     />
                   </div>

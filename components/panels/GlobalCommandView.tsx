@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
 import { useCallback } from "react";
 import {
   clients,
@@ -98,15 +97,9 @@ export function GlobalCommandView() {
           />
         </div>
 
-        <AnimatePresence mode="wait">
+        
           {selected ? (
-            <motion.div
-              key={selected.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.25 }}
-            >
+            <div>
               <Card elevated className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -177,14 +170,9 @@ export function GlobalCommandView() {
                   </Button>
                 </div>
               </Card>
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              key="feed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
+            <div>
               <Card padding="none" className="overflow-hidden">
                 <div className="flex items-center justify-between border-b border-[rgba(10,22,40,0.06)] px-4 py-3">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
@@ -195,12 +183,9 @@ export function GlobalCommandView() {
                   </span>
                 </div>
                 <ul className="scrollbar-thin max-h-[280px] overflow-y-auto">
-                  {networkEvents.map((evt, i) => (
-                    <motion.li
+                  {networkEvents.map((evt) => (
+                    <li
                       key={evt.id}
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.03 }}
                       className="flex gap-3 border-b border-[rgba(10,22,40,0.04)] px-4 py-2.5 last:border-0"
                     >
                       <span className="mt-1.5 shrink-0">
@@ -217,13 +202,13 @@ export function GlobalCommandView() {
                           {relativeTime(evt.timestamp)} · {evt.type}
                         </p>
                       </div>
-                    </motion.li>
+                    </li>
                   ))}
                 </ul>
               </Card>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        
 
         <Card>
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
