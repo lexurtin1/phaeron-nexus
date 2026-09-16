@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { attentionItems, teamActivity } from "@/data/mock";
 import { useNexusStore } from "@/lib/store";
 import { relativeTime } from "@/lib/utils";
 import {
@@ -12,13 +11,20 @@ import {
   Tag,
 } from "@/components/ui";
 import type { TaskModule, TaskPriority } from "@/data/types";
+import {
+  useLiveAttention,
+  useLiveTasks,
+  useLiveTeamActivity,
+} from "@/lib/query/hooks";
+import { useUpdateTask } from "@/lib/query/mutations";
 
 const CURRENT_USER = "tm-alex";
 
 export default function TeamPage() {
-  const tasks = useNexusStore((s) => s.tasks);
-  const updateTaskStatus = useNexusStore((s) => s.updateTaskStatus);
-  const assignTask = useNexusStore((s) => s.assignTask);
+  const { data: tasks } = useLiveTasks();
+  const { data: attentionItems } = useLiveAttention();
+  const { data: teamActivity } = useLiveTeamActivity();
+  const updateTask = useUpdateTask();
   const attentionDismissed = useNexusStore((s) => s.attentionDismissed);
   const dismissAttention = useNexusStore((s) => s.dismissAttention);
 
@@ -95,7 +101,12 @@ export default function TeamPage() {
                           t.status !== "done"
                       );
                       if (related) {
-                        assignTask(related.id, CURRENT_USER, "Alex Curtin");
+                        updateTask.mutate({
+                          id: related.id,
+                          assigneeId: CURRENT_USER,
+                          assigneeName: "Alex Curtin",
+                          status: "in_progress",
+                        });
                       }
                       dismissAttention(item.id);
                     }}
@@ -188,14 +199,18 @@ export default function TeamPage() {
                   {t.status === "open" && (
                     <Button
                       variant="subtle"
-                      onClick={() => updateTaskStatus(t.id, "in_progress")}
+                      onClick={() =>
+                        updateTask.mutate({ id: t.id, status: "in_progress" })
+                      }
                     >
                       Start
                     </Button>
                   )}
                   <Button
                     variant="primary"
-                    onClick={() => updateTaskStatus(t.id, "done")}
+                    onClick={() =>
+                      updateTask.mutate({ id: t.id, status: "done" })
+                    }
                   >
                     Complete
                   </Button>

@@ -1,14 +1,13 @@
-import { notFound } from "next/navigation";
-import { getClient } from "@/data/mock";
-import { ClientDossier } from "@/components/client/ClientDossier";
+"use client";
 
-export default async function ClientPage({
+import { ClientDossier } from "@/components/client/ClientDossier";
+import { use } from "react";
+
+export default function ClientPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const client = getClient(id);
-  if (!client) notFound();
-  return <ClientDossier client={client} />;
+  const { id } = use(params);
+  return <ClientDossier clientId={id} />;
 }

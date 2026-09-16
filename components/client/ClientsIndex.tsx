@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { clients } from "@/data/mock";
 import {
   formatCurrency,
   formatPercent,
@@ -17,9 +16,11 @@ import {
   SectionHeader,
   Tag,
 } from "@/components/ui";
-import type { DeploymentMaturity, HealthStatus, Region } from "@/data/types";
+import type { HealthStatus, Region } from "@/data/types";
+import { useLiveClients } from "@/lib/query/hooks";
 
 export function ClientsIndex() {
+  const { data: clients } = useLiveClients();
   const [q, setQ] = useState("");
   const [region, setRegion] = useState<Region | "all">("all");
   const [health, setHealth] = useState<HealthStatus | "all">("all");
@@ -32,7 +33,7 @@ export function ClientsIndex() {
       const hay = `${c.name} ${c.city} ${c.industry}`.toLowerCase();
       return hay.includes(q.toLowerCase());
     });
-  }, [q, region, health]);
+  }, [q, region, health, clients]);
 
   return (
     <div className="space-y-4">
@@ -101,7 +102,7 @@ export function ClientsIndex() {
                 {c.industry} · {c.city}, {c.country}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                <Tag>{maturityLabel(c.maturity as DeploymentMaturity)}</Tag>
+                <Tag>{maturityLabel(c.maturity)}</Tag>
                 <Tag>{c.region}</Tag>
                 <Tag>Eval {c.evaluationScore.toFixed(1)}</Tag>
               </div>

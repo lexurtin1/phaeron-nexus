@@ -26,3 +26,6 @@ next-env.d.ts
 
 # Local inspiration clones (do not ship)
 _inspiration/
+
+# Local PGlite / data
+.data/

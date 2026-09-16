@@ -12,9 +12,9 @@ import {
   Activity,
   RefreshCw,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { globalKpis, incidents } from "@/data/mock";
+import { cn, formatNumber } from "@/lib/utils";
 import { ThemeToggle } from "@/components/common/theme-toggle";
+import { useNexusSnapshot } from "@/lib/query/hooks";
 
 const NAV = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
@@ -35,13 +35,19 @@ const TITLES: Record<string, string> = {
 };
 
 function useFleetStatus() {
-  const kpis = globalKpis();
-  const critical = incidents.some(
+  const { data } = useNexusSnapshot();
+  const kpis = data?.fleet ?? {
+    fleetUptime: 0,
+    openIncidents: 0,
+    fleetRps: 0,
+    fleetP95: 0,
+  };
+  const critical = (data?.incidents ?? []).some(
     (i) => i.severity === "critical" && i.status !== "resolved"
   );
   const backendStatus = critical
     ? "unhealthy"
-    : kpis.openIncidents > 0
+    : (kpis.openIncidents ?? 0) > 0
       ? "degraded"
       : "healthy";
   const statusClass =
@@ -50,12 +56,12 @@ function useFleetStatus() {
       : backendStatus === "unhealthy"
         ? "bg-rose-500"
         : "bg-amber-500";
-  return { kpis, backendStatus, statusClass };
+  return { kpis, backendStatus, statusClass, tick: data?.tick ?? 0 };
 }
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { kpis, statusClass } = useFleetStatus();
+  const { kpis, statusClass, tick } = useFleetStatus();
 
   return (
     <aside className="sticky top-0 hidden h-screen w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
@@ -86,6 +92,9 @@ export function Sidebar() {
                 statusClass
               )}
             />
+          </span>
+          <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+            Live · {tick}
           </span>
         </div>
         <p className="mt-1 text-[12px] font-medium leading-snug text-muted-foreground">
@@ -128,6 +137,10 @@ export function Sidebar() {
             <p className="tabular-nums text-sm font-semibold">
               {kpis.fleetUptime.toFixed(2)}% · {kpis.openIncidents} incidents
             </p>
+            <p className="tabular-nums text-[11px] text-muted-foreground">
+              {formatNumber(kpis.fleetRps ?? 0)} rps · P95{" "}
+              {(kpis.fleetP95 ?? 0).toFixed(0)}ms
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2.5 px-1">
@@ -151,6 +164,7 @@ export function Sidebar() {
 
 export function DashboardHeader() {
   const pathname = usePathname();
+  const { kpis, tick } = useFleetStatus();
   const base = Object.keys(TITLES)
     .sort((a, b) => b.length - a.length)
     .find((k) => (k === "/" ? pathname === "/" : pathname.startsWith(k)));
@@ -178,7 +192,7 @@ export function DashboardHeader() {
       <div className="flex items-center gap-2">
         <span className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground sm:inline-flex">
           <span className="live-pulse h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          Live · Managing fleet
+          Live · {formatNumber(kpis.fleetRps ?? 0)} rps · tick {tick}
         </span>
         <ThemeToggle />
         <button

@@ -13,23 +13,6 @@ import {
   Zap,
 } from "lucide-react";
 import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import {
-  clients,
-  clusters,
-  commercialSummary,
-  globalKpis,
-  incidents,
-  networkEvents,
-  opportunities,
-} from "@/data/mock";
-import {
   formatCurrency,
   formatNumber,
   formatPercent,
@@ -46,26 +29,12 @@ import {
 import { StatsCards } from "@/components/features/stats/stats-cards";
 import { WorldTrafficMap } from "@/components/features/countries/world-traffic-map";
 import {
-  buildCountryStats,
-  buildStatsSummary,
+  buildCountryStatsFromClients,
+  buildStatsSummaryFromSnapshot,
   clientsForCountryIso,
 } from "@/lib/neko-adapters";
-
-const TREND = (() => {
-  const apiProfile = [
-    180, 2100, 90, 2450, 220, 2800, 60, 1980, 340, 2650, 110, 1720, 80, 2550,
-    150, 2280, 70, 2900, 200, 1850, 95, 2700, 140, 2150,
-  ];
-  const evalProfile = [
-    60, 980, 40, 1420, 90, 1680, 30, 1210, 120, 1550, 45, 890, 35, 1480, 55,
-    1320, 25, 1750, 80, 1100, 40, 1600, 70, 1250,
-  ];
-  return apiProfile.map((api, i) => ({
-    time: `${String(i).padStart(2, "0")}:00`,
-    api,
-    eval: evalProfile[i],
-  }));
-})();
+import { useNexusSnapshot } from "@/lib/query/hooks";
+import { LiveChart } from "@/components/charts/LiveChart";
 
 type KpiKey =
   | "deployments"
@@ -140,10 +109,58 @@ function RankRow({
 export function NekoOverview() {
   const [selectedKpi, setSelectedKpi] = useState<KpiKey | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const stats = useMemo(() => buildStatsSummary(), []);
-  const countryStats = useMemo(() => buildCountryStats(), []);
-  const kpis = globalKpis();
-  const summary = commercialSummary();
+  const { data: snapshot, isLoading } = useNexusSnapshot();
+
+  const clients = snapshot?.clients ?? [];
+  const clusters = snapshot?.clusters ?? [];
+  const incidents = snapshot?.incidents ?? [];
+  const networkEvents = snapshot?.networkEvents ?? [];
+  const opportunities = snapshot?.opportunities ?? [];
+  const organisations = snapshot?.organisations ?? [];
+
+  const stats = useMemo(
+    () =>
+      snapshot
+        ? buildStatsSummaryFromSnapshot(snapshot)
+        : {
+            totalUpload: 0,
+            totalDownload: 0,
+            totalConnections: 0,
+            totalDomains: 0,
+            totalRules: 0,
+            activeDeployments: 0,
+            fleetUptime: 0,
+            openIncidents: 0,
+            evaluationsPassing: 0,
+            evaluationsTotal: 0,
+            pipelineValue: 0,
+            totalApiCalls24h: 0,
+          },
+    [snapshot]
+  );
+  const countryStats = useMemo(
+    () => buildCountryStatsFromClients(clients),
+    [clients]
+  );
+  const kpis = snapshot?.fleet ?? {
+    activeDeployments: 0,
+    fleetUptime: 0,
+    openIncidents: 0,
+    evaluationsPassing: 0,
+    evaluationsTotal: 0,
+    fleetRps: 0,
+    fleetP95: 0,
+  };
+  const summary = snapshot?.commercial ?? {
+    totalOpen: 0,
+    weighted: 0,
+    contractedArr: 0,
+    liveArr: 0,
+    rampedArr: 0,
+    pipelineCoverage: 0,
+    confidenceWeighted: 0,
+    dealsToTarget: 0,
+  };
   const topClients = [...clients]
     .sort((a, b) => b.apiCalls24h - a.apiCalls24h)
     .slice(0, 6);
@@ -157,8 +174,31 @@ export function NekoOverview() {
     ["live", "ramped", "deploying"].includes(c.maturity)
   );
   const countryClients = selectedCountry
-    ? clientsForCountryIso(selectedCountry)
+    ? clientsForCountryIso(clients, selectedCountry)
     : [];
+
+  const fleetLiveSeries = useMemo(() => {
+    if (!organisations.length) {
+      return { timestamps: [] as number[], rps: [] as number[], p95: [] as number[] };
+    }
+    const timestamps = organisations[0].liveTimestamps;
+    const rps = timestamps.map((_, i) =>
+      organisations.reduce((s, o) => s + (o.liveTraffic[i] ?? 0), 0)
+    );
+    const p95 = timestamps.map((_, i) => {
+      const vals = organisations.map((o) => o.liveLatency[i] ?? o.latencyP99);
+      return vals.reduce((a, b) => a + b, 0) / Math.max(vals.length, 1);
+    });
+    return { timestamps, rps, p95 };
+  }, [organisations]);
+
+  if (isLoading && !snapshot) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
+        Connecting to Nexus LivePulse…
+      </div>
+    );
+  }
 
   const kpiDetail = useMemo(() => {
     if (!selectedKpi) return null;
@@ -260,16 +300,13 @@ export function NekoOverview() {
   }, [
     selectedKpi,
     liveClients,
+    clients,
     kpis.fleetUptime,
     openIncidents,
     summary.totalOpen,
     summary.weighted,
+    opportunities,
   ]);
-
-  const chartColors = {
-    api: "var(--chart-1)",
-    eval: "var(--chart-2)",
-  };
 
   return (
     <div className="space-y-4">
@@ -396,72 +433,35 @@ export function NekoOverview() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <Activity className="h-4 w-4 text-primary" />
-              Traffic & evaluation load
+              Live fleet telemetry
+              <span className="ml-auto text-[10px] font-semibold uppercase tracking-wide text-emerald-600">
+                LivePulse · 1s
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={TREND}>
-                <defs>
-                  <linearGradient id="apiFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor={chartColors.api}
-                      stopOpacity={0.35}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor={chartColors.api}
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                  <linearGradient id="evalFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor={chartColors.eval}
-                      stopOpacity={0.3}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor={chartColors.eval}
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="time"
-                  tick={{ fontSize: 10 }}
-                  stroke="var(--muted-foreground)"
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis hide />
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--card)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="api"
-                  name="API"
-                  stroke={chartColors.api}
-                  fill="url(#apiFill)"
-                  strokeWidth={2}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="eval"
-                  name="Evals"
-                  stroke={chartColors.eval}
-                  fill="url(#evalFill)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {fleetLiveSeries.timestamps.length > 2 ? (
+              <LiveChart
+                height={210}
+                timestamps={fleetLiveSeries.timestamps}
+                series={[
+                  {
+                    label: "Fleet RPS",
+                    color: "var(--chart-1)",
+                    values: fleetLiveSeries.rps,
+                  },
+                  {
+                    label: "P95 ms",
+                    color: "var(--chart-5)",
+                    values: fleetLiveSeries.p95,
+                  },
+                ]}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                Waiting for live samples…
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -1,11 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  clients,
-  commercialSummary,
-  opportunities,
-} from "@/data/mock";
 import type { PipelineStage } from "@/data/types";
 import {
   formatCurrency,
@@ -20,6 +15,11 @@ import {
   SectionHeader,
   Tag,
 } from "@/components/ui";
+import {
+  useLiveClients,
+  useLiveCommercial,
+  useLiveOpportunities,
+} from "@/lib/query/hooks";
 
 const STAGES: PipelineStage[] = [
   "Prospect",
@@ -31,7 +31,19 @@ const STAGES: PipelineStage[] = [
 ];
 
 export default function RevenuePage() {
-  const summary = commercialSummary();
+  const { data: opportunities } = useLiveOpportunities();
+  const { data: clients } = useLiveClients();
+  const { data: summaryData } = useLiveCommercial();
+  const summary = summaryData ?? {
+    totalOpen: 0,
+    weighted: 0,
+    contractedArr: 0,
+    liveArr: 0,
+    rampedArr: 0,
+    pipelineCoverage: 0,
+    confidenceWeighted: 0,
+    dealsToTarget: 0,
+  };
   const [showMap, setShowMap] = useState(false);
 
   const byStage = useMemo(() => {
@@ -43,7 +55,7 @@ export default function RevenuePage() {
         total: items.reduce((s, o) => s + o.value, 0),
       };
     });
-  }, []);
+  }, [opportunities]);
 
   const accountHealth = clients.filter((c) =>
     ["live", "ramped", "deploying", "at_risk"].includes(c.maturity)

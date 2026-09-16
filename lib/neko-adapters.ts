@@ -1,11 +1,5 @@
-import {
-  clients,
-  commercialSummary,
-  globalKpis,
-  incidents,
-  ontologyNodes,
-} from "@/data/mock";
-import type { Client } from "@/data/types";
+import type { Client, Incident } from "@/data/types";
+import type { SnapshotBundle } from "@/lib/query/keys";
 
 export type CountryStats = {
   country: string;
@@ -69,9 +63,13 @@ export function countryMeta(country: string) {
   );
 }
 
-export function buildStatsSummary(): StatsSummary {
-  const kpis = globalKpis();
-  const commercial = commercialSummary();
+export function buildStatsSummaryFromSnapshot(
+  snapshot: Pick<
+    SnapshotBundle,
+    "clients" | "fleet" | "commercial" | "incidents"
+  >
+): StatsSummary {
+  const { clients, fleet, commercial } = snapshot;
   const totalApi = clients.reduce((s, c) => s + c.apiCalls24h, 0);
   const totalDownload = Math.round(totalApi * BYTES_PER_API_CALL * 0.62);
   const totalUpload = Math.round(totalApi * BYTES_PER_API_CALL * 0.38);
@@ -80,19 +78,20 @@ export function buildStatsSummary(): StatsSummary {
     totalUpload,
     totalDownload,
     totalConnections: totalApi,
-    totalDomains: ontologyNodes.length,
-    totalRules: clients.reduce((s, c) => s + c.domainPacks.length, 0),
-    activeDeployments: kpis.activeDeployments,
-    fleetUptime: kpis.fleetUptime,
-    openIncidents: kpis.openIncidents,
-    evaluationsPassing: kpis.evaluationsPassing,
-    evaluationsTotal: kpis.evaluationsTotal,
+    totalDomains: clients.length,
+    totalRules: snapshot.incidents.filter((i) => i.status !== "resolved")
+      .length,
+    activeDeployments: fleet.activeDeployments,
+    fleetUptime: fleet.fleetUptime,
+    openIncidents: fleet.openIncidents,
+    evaluationsPassing: fleet.evaluationsPassing,
+    evaluationsTotal: fleet.evaluationsTotal,
     pipelineValue: commercial.totalOpen,
     totalApiCalls24h: totalApi,
   };
 }
 
-export function buildCountryStats(): CountryStats[] {
+export function buildCountryStatsFromClients(clients: Client[]): CountryStats[] {
   const byIso = new Map<
     string,
     {
@@ -133,11 +132,16 @@ export function buildCountryStats(): CountryStats[] {
     );
 }
 
-export function clientsForCountryIso(iso: string): Client[] {
+export function clientsForCountryIso(
+  clients: Client[],
+  iso: string
+): Client[] {
   return clients.filter((c) => countryIsoForClient(c) === iso);
 }
 
-export function fleetStatus(): "healthy" | "unhealthy" | "degraded" {
+export function fleetStatusFromIncidents(
+  incidents: Incident[]
+): "healthy" | "unhealthy" | "degraded" {
   const critical = incidents.some(
     (i) => i.severity === "critical" && i.status !== "resolved"
   );

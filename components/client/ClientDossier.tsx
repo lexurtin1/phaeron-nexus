@@ -2,16 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-} from "recharts";
-import { domainPacks, incidents, resolveClientIntel, tasks } from "@/data/mock";
-import type { Client } from "@/data/types";
-import { useNexusStore } from "@/lib/store";
+import { domainPacks } from "@/data/mock";
 import {
   formatCurrency,
   formatLatency,
@@ -22,6 +13,7 @@ import {
   relativeTime,
 } from "@/lib/utils";
 import { Sparkline } from "@/components/charts/Sparkline";
+import { LiveChart } from "@/components/charts/LiveChart";
 import {
   Badge,
   Button,
@@ -31,31 +23,54 @@ import {
   Input,
   Tag,
 } from "@/components/ui";
+import {
+  useLiveIncidents,
+  useLiveNotes,
+  useLiveOrganisation,
+  useLiveTasks,
+} from "@/lib/query/hooks";
+import { useCreateNote } from "@/lib/query/mutations";
 
-export function ClientDossier({ client }: { client: Client }) {
-  const notes = useNexusStore((s) =>
-    s.notes.filter(
-      (n) => n.objectType === "client" && n.objectId === client.id
-    )
-  );
-  const addNote = useNexusStore((s) => s.addNote);
+export function ClientDossier({ clientId }: { clientId: string }) {
+  const { client, data: org, isLoading } = useLiveOrganisation(clientId);
+  const { data: allTasks } = useLiveTasks();
+  const { data: allIncidents } = useLiveIncidents();
+  const { data: notes } = useLiveNotes(clientId);
+  const createNote = useCreateNote();
   const [draft, setDraft] = useState("");
-  const clientTasks = tasks.filter((t) => t.clientId === client.id);
-  const clientIncidents = incidents.filter((i) => i.clientId === client.id);
+
+  if (isLoading && !client) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
+        Loading organisation…
+      </div>
+    );
+  }
+
+  if (!client || !org) {
+    return (
+      <div className="space-y-3">
+        <Link href="/clients" className="text-sm text-muted-foreground">
+          ← All clients
+        </Link>
+        <p className="text-sm">Organisation not found.</p>
+      </div>
+    );
+  }
+
+  const clientTasks = allTasks.filter((t) => t.clientId === client.id);
+  const clientIncidents = allIncidents.filter((i) => i.clientId === client.id);
   const packs = domainPacks.filter((p) => p.deployedTo.includes(client.id));
-  const intel = resolveClientIntel(client);
   const outdatedPack =
     client.ontologyVersion < "4.2.0" || client.runtimeVersion < "2.4.0";
 
-  const trafficSeries = client.deployment.sparklines.uptime.map((p, i) => ({
-    t: p.t,
-    api: Math.round(
-      client.apiCalls24h / 24 +
-        Math.sin(i / 2) * (client.apiCalls24h / 40) +
-        (i % 3) * 40
-    ),
-    latency: client.deployment.sparklines.latency[i]?.v ?? client.latencyP99,
-  }));
+  const pricingTier = client.pricingTier ?? "Growth";
+  const products = client.products ?? [];
+  const lastMeeting = client.lastMeeting;
+  const nextMeeting = client.nextMeeting;
+  const news = client.news ?? [];
+  const mrr = client.mrr ?? Math.round(client.arr / 12);
+  const ytdRevenue = client.ytdRevenue ?? client.arr;
 
   const metrics = [
     {
@@ -156,7 +171,7 @@ export function ClientDossier({ client }: { client: Client }) {
             <div className="mt-3 flex flex-wrap gap-1.5">
               <Tag>{maturityLabel(client.maturity)}</Tag>
               <Tag>{client.commercialStage}</Tag>
-              <Tag>Tier · {intel.pricingTier}</Tag>
+              <Tag>Tier · {pricingTier}</Tag>
               <Tag>Owner {client.accountOwner}</Tag>
             </div>
           </div>
@@ -181,8 +196,8 @@ export function ClientDossier({ client }: { client: Client }) {
               {client.arr ? formatCurrency(client.arr, true) : "—"}
             </p>
             <p className="text-[12px] text-muted-foreground">
-              MRR {formatCurrency(intel.mrr, true)} · YTD{" "}
-              {formatCurrency(intel.ytdRevenue, true)}
+              MRR {formatCurrency(mrr, true)} · YTD{" "}
+              {formatCurrency(ytdRevenue, true)}
             </p>
           </div>
         </div>
@@ -194,10 +209,10 @@ export function ClientDossier({ client }: { client: Client }) {
             Pricing tier
           </p>
           <p className="mt-1 text-xl font-semibold text-foreground">
-            {intel.pricingTier}
+            {pricingTier}
           </p>
           <p className="mt-1 text-[12px] text-muted-foreground">
-            Contracted ARR {formatCurrency(client.arr || intel.mrr * 12, true)}
+            Contracted ARR {formatCurrency(client.arr || mrr * 12, true)}
           </p>
         </Card>
         <Card>
@@ -205,47 +220,44 @@ export function ClientDossier({ client }: { client: Client }) {
             Last meeting
           </p>
           <p className="mt-1 text-sm font-semibold text-foreground">
-            {intel.lastMeeting.title}
+            {lastMeeting?.title ?? "—"}
           </p>
-          <p className="mt-1 text-[12px] text-muted-foreground">
-            {relativeTime(intel.lastMeeting.date)}
-            {intel.lastMeeting.location ? ` · ${intel.lastMeeting.location}` : ""}
-          </p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            {intel.lastMeeting.attendees.join(" · ")}
-          </p>
+          {lastMeeting && (
+            <>
+              <p className="mt-1 text-[12px] text-muted-foreground">
+                {relativeTime(lastMeeting.date)}
+                {lastMeeting.location ? ` · ${lastMeeting.location}` : ""}
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {lastMeeting.attendees.join(" · ")}
+              </p>
+            </>
+          )}
         </Card>
         <Card>
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#e11d48]">
             Next meeting
           </p>
           <p className="mt-1 text-sm font-semibold text-foreground">
-            {intel.nextMeeting.title}
+            {nextMeeting?.title ?? "—"}
           </p>
-          <p className="mt-1 text-[12px] text-muted-foreground">
-            {new Date(intel.nextMeeting.date).toLocaleString("en-GB", {
-              day: "numeric",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-            {intel.nextMeeting.location ? ` · ${intel.nextMeeting.location}` : ""}
-          </p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            {intel.nextMeeting.attendees.join(" · ")}
-          </p>
+          {nextMeeting && (
+            <p className="mt-1 text-[12px] text-muted-foreground">
+              {relativeTime(nextMeeting.date)}
+            </p>
+          )}
         </Card>
       </div>
 
       <Card>
-        <h2 className="font-display text-[22px] text-foreground">
-          Phaeron products in use
-        </h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {intel.products.map((p) => (
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          Products & packs
+        </p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {products.map((p) => (
             <span
               key={p}
-              className="rounded-lg border border-[#0a1628]/15 bg-primary/5 px-3 py-1.5 text-[12px] font-semibold text-foreground"
+              className="rounded-md bg-muted px-2 py-1 text-[11px] font-semibold"
             >
               {p}
             </span>
@@ -258,6 +270,11 @@ export function ClientDossier({ client }: { client: Client }) {
             </Tag>
           ))}
         </div>
+        {outdatedPack && (
+          <p className="mt-3 text-[12px] text-amber-600">
+            Runtime or ontology version is behind fleet standard.
+          </p>
+        )}
       </Card>
 
       <section>
@@ -267,7 +284,7 @@ export function ClientDossier({ client }: { client: Client }) {
         <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-semibold text-foreground">
-              Traffic · latency overlay (24h)
+              Live traffic · latency
             </p>
             <p className="text-[11px] text-muted-foreground">
               {formatNumber(client.apiCalls24h)} calls · P99{" "}
@@ -275,61 +292,44 @@ export function ClientDossier({ client }: { client: Client }) {
             </p>
           </div>
           <div className="h-[180px] w-full">
-            <ResponsiveContainer>
-              <AreaChart data={trafficSeries}>
-                <defs>
-                  <linearGradient id="clientApi" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0a1628" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="#0a1628" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="t"
-                  tick={{ fontSize: 10, fill: "#94a3b8" }}
-                  axisLine={false}
-                  tickLine={false}
-                  interval={3}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 10,
-                    border: "1px solid #e2e8f0",
-                    fontSize: 12,
-                  }}
-                />
-                <Area
-                  type="linear"
-                  dataKey="api"
-                  name="API"
-                  stroke="#0a1628"
-                  fill="url(#clientApi)"
-                  strokeWidth={2}
-                />
-                <Area
-                  type="linear"
-                  dataKey="latency"
-                  name="Latency"
-                  stroke="#e11d48"
-                  fill="transparent"
-                  strokeWidth={1.75}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {org.liveTimestamps.length > 2 ? (
+              <LiveChart
+                height={160}
+                timestamps={org.liveTimestamps}
+                series={[
+                  {
+                    label: "RPS",
+                    color: "#0a1628",
+                    values: org.liveTraffic,
+                  },
+                  {
+                    label: "Latency",
+                    color: "#d97706",
+                    values: org.liveLatency,
+                  },
+                ]}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Waiting for samples…
+              </p>
+            )}
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {metrics.map((m) => (
-            <Card key={m.label} className="space-y-2">
+            <Card key={m.label}>
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {m.label}
                 </p>
                 <HealthDot status={m.status} />
               </div>
-              <p className="text-[18px] font-semibold text-foreground">
-                {m.value}
-              </p>
-              <Sparkline data={m.spark} color={m.color} />
+              <p className="mt-1 text-lg font-semibold tabular-nums">{m.value}</p>
+              <div className="mt-2">
+                <Sparkline data={m.spark} color={m.color} />
+              </div>
             </Card>
           ))}
         </div>
@@ -337,20 +337,20 @@ export function ClientDossier({ client }: { client: Client }) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="font-display text-[22px] text-foreground">
-            Industry news
-          </h2>
-          <ul className="mt-3 space-y-3">
-            {intel.news.map((n) => (
+          <h2 className="font-display text-[22px] text-foreground">Contacts</h2>
+          <ul className="mt-3 space-y-2">
+            {client.contacts.map((c) => (
               <li
-                key={n.title}
-                className="rounded-lg border border-border bg-muted/60/70 px-3 py-2.5"
+                key={c.id}
+                className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
               >
-                <p className="text-sm font-semibold text-foreground">{n.title}</p>
-                <p className="mt-1 text-[12px] text-muted-foreground">{n.summary}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                  {n.source} · {n.date}
-                </p>
+                <div>
+                  <p className="text-[13px] font-semibold">{c.name}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {c.role} · {c.email}
+                  </p>
+                </div>
+                <Tag>{c.strength}</Tag>
               </li>
             ))}
           </ul>
@@ -358,150 +358,89 @@ export function ClientDossier({ client }: { client: Client }) {
 
         <Card>
           <h2 className="font-display text-[22px] text-foreground">
-            Key contacts
+            Relationship
           </h2>
-          <ul className="mt-3 space-y-2">
-            {client.contacts.map((c) => (
-              <li
-                key={c.id}
-                className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-2 text-[12px]"
-              >
-                <span>
-                  <span className="font-semibold text-foreground">
-                    {c.name}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {" "}
-                    · {c.role}
-                  </span>
-                  <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                    {c.email}
-                  </span>
-                </span>
-                <Badge
-                  tone={
-                    c.strength === "strong"
-                      ? "healthy"
-                      : c.strength === "moderate"
-                        ? "navy"
-                        : "warning"
-                  }
-                >
-                  {c.strength}
-                </Badge>
-              </li>
-            ))}
-          </ul>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">
+            {client.relationshipScore}
+            <span className="text-base text-muted-foreground">/100</span>
+          </p>
+          <p className="mt-1 text-[12px] text-muted-foreground">
+            Last commercial contact{" "}
+            {relativeTime(client.lastCommercialContact)}
+          </p>
           <Divider className="my-3" />
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            Commercial context
-          </h3>
-          <dl className="mt-2 space-y-2 text-[13px]">
-            <div className="flex justify-between">
-              <dt className="text-muted-foreground">Stage</dt>
-              <dd className="font-semibold">{client.commercialStage}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-muted-foreground">Relationship</dt>
-              <dd className="font-semibold">{client.relationshipScore}/100</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-muted-foreground">Open opps</dt>
-              <dd className="font-semibold">{client.openOpportunities}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-muted-foreground">Last contact</dt>
-              <dd className="font-semibold">
-                {relativeTime(client.lastCommercialContact)}
-              </dd>
-            </div>
-          </dl>
+          <p className="text-[12px] text-muted-foreground">
+            Open opportunities · {client.openOpportunities}
+          </p>
         </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="font-display text-[22px] text-foreground">
-            Ontology state
-          </h2>
-          <p className="mt-1 text-[12px] text-muted-foreground">
-            Master ontology {client.ontologyVersion} · Runtime{" "}
-            {client.runtimeVersion}
-          </p>
-          {outdatedPack && (
-            <p className="mt-2 text-[12px] font-medium text-[var(--color-warning)]">
-              Pack or runtime behind current master — rollout recommended.
-            </p>
-          )}
-          <Link href="/ontology" className="mt-3 inline-block">
-            <Button variant="subtle">Explore ontology graph</Button>
-          </Link>
+          <h2 className="font-display text-[22px] text-foreground">Tasks</h2>
+          <ul className="mt-3 space-y-2">
+            {clientTasks.map((t) => (
+              <li key={t.id} className="rounded-lg border border-border p-3">
+                <p className="text-[13px] font-semibold">{t.title}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {t.status} · {t.assigneeName} · {t.priority}
+                </p>
+              </li>
+            ))}
+            {clientTasks.length === 0 && (
+              <p className="text-[12px] text-muted-foreground">No open tasks.</p>
+            )}
+          </ul>
         </Card>
-
         <Card>
           <h2 className="font-display text-[22px] text-foreground">
-            Open actions
+            Incidents
           </h2>
-          {clientTasks.length === 0 && clientIncidents.length === 0 ? (
-            <p className="mt-3 text-[13px] text-muted-foreground">
-              No open actions against this account.
-            </p>
-          ) : (
-            <ul className="mt-3 space-y-2">
-              {clientIncidents.map((i) => (
-                <li
-                  key={i.id}
-                  className="rounded-lg border border-[#e11d48]/20 bg-[#e11d48]/5 p-3"
-                >
-                  <p className="text-[13px] font-semibold text-foreground">
-                    Incident · {i.title}
-                  </p>
-                  <p className="mt-1 text-[12px] text-muted-foreground">
-                    {i.severity} · {relativeTime(i.openedAt)}
-                  </p>
-                </li>
-              ))}
-              {clientTasks.map((t) => (
-                <li
-                  key={t.id}
-                  className="rounded-lg bg-[rgba(10,22,40,0.03)] p-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-[13px] font-semibold text-foreground">
-                      {t.title}
-                    </p>
-                    <Badge
-                      tone={
-                        t.priority === "critical"
-                          ? "critical"
-                          : t.priority === "high"
-                            ? "warning"
-                            : "navy"
-                      }
-                    >
-                      {t.priority}
-                    </Badge>
-                  </div>
-                  <p className="mt-1 text-[12px] text-muted-foreground">
-                    {t.assigneeName} · due {t.dueDate}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul className="mt-3 space-y-2">
+            {clientIncidents.map((i) => (
+              <li key={i.id} className="rounded-lg border border-border p-3">
+                <p className="text-[13px] font-semibold">{i.title}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {i.severity} · {i.status} · {relativeTime(i.openedAt)}
+                </p>
+              </li>
+            ))}
+            {clientIncidents.length === 0 && (
+              <p className="text-[12px] text-muted-foreground">
+                No incidents on this account.
+              </p>
+            )}
+          </ul>
         </Card>
       </div>
 
+      {news.length > 0 && (
+        <Card>
+          <h2 className="font-display text-[22px] text-foreground">News</h2>
+          <ul className="mt-3 space-y-3">
+            {news.map((n) => (
+              <li key={n.title}>
+                <p className="text-[13px] font-semibold">{n.title}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {n.source} · {n.date}
+                </p>
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                  {n.summary}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
       <Card>
-        <h2 className="font-display text-[22px] text-foreground">
-          Notes
-        </h2>
+        <h2 className="font-display text-[22px] text-foreground">Notes</h2>
         <form
           className="mt-3 flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
             if (!draft.trim()) return;
-            addNote({
+            createNote.mutate({
               objectType: "client",
               objectId: client.id,
               author: "Alex Curtin",

@@ -1,12 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import {
-  clusters,
-  incidents,
-  regionSummaries,
-  rollouts,
-} from "@/data/mock";
 import type { Cluster } from "@/data/types";
 import { formatPercent, healthLabel, relativeTime } from "@/lib/utils";
 import {
@@ -16,6 +10,15 @@ import {
   SectionHeader,
   Tag,
 } from "@/components/ui";
+import {
+  useLiveClusters,
+  useLiveIncidents,
+  useLiveRegionSummaries,
+  useLiveRollouts,
+  useNexusSnapshot,
+} from "@/lib/query/hooks";
+import { LiveChart } from "@/components/charts/LiveChart";
+
 function ClusterDrawer({
   cluster,
   onClose,
@@ -78,7 +81,24 @@ function ClusterDrawer({
 
 export default function InfrastructurePage() {
   const [selected, setSelected] = useState<Cluster | null>(null);
-  const regions = regionSummaries();
+  const { data: clusters } = useLiveClusters();
+  const { data: incidents } = useLiveIncidents();
+  const { data: regions } = useLiveRegionSummaries();
+  const { data: rollouts } = useLiveRollouts();
+  const { data: snapshot } = useNexusSnapshot();
+
+  const liveCluster = selected
+    ? clusters.find((c) => c.id === selected.id) ?? selected
+    : null;
+
+  const utilSeries = (() => {
+    const orgs = snapshot?.organisations ?? [];
+    if (!orgs.length) return null;
+    return {
+      timestamps: orgs[0].liveTimestamps,
+      cpu: clusters.map((c) => c.cpuUtil),
+    };
+  })();
 
   return (
     <div className="space-y-5">
@@ -87,6 +107,59 @@ export default function InfrastructurePage() {
         title="Infrastructure"
         description="Manage deployment health — regions, clusters, incidents, and rollouts across the live fleet."
       />
+
+      {snapshot?.fleet && (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Card>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Fleet RPS
+            </p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums">
+              {snapshot.fleet.fleetRps.toLocaleString()}
+            </p>
+          </Card>
+          <Card>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Fleet P95
+            </p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums">
+              {snapshot.fleet.fleetP95.toFixed(0)}ms
+            </p>
+          </Card>
+          <Card>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Availability
+            </p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums">
+              {snapshot.fleet.fleetAvailability.toFixed(3)}%
+            </p>
+          </Card>
+        </div>
+      )}
+
+      {utilSeries && utilSeries.timestamps.length > 2 && (
+        <Card>
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Live organisation latency (fleet sample)
+          </p>
+          <LiveChart
+            height={140}
+            timestamps={snapshot!.organisations[0].liveTimestamps}
+            series={[
+              {
+                label: "P95 ms",
+                color: "#d97706",
+                values: snapshot!.organisations[0].liveLatency,
+              },
+              {
+                label: "RPS",
+                color: "#059669",
+                values: snapshot!.organisations[0].liveTraffic,
+              },
+            ]}
+          />
+        </Card>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
         <div className="space-y-5">
@@ -156,17 +229,11 @@ export default function InfrastructurePage() {
                       </Badge>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                      <Tag>K8s {c.k8sVersion}</Tag>
-                      <Tag>{c.nodeCount} nodes</Tag>
+                      <Tag>CPU {c.cpuUtil}%</Tag>
+                      <Tag>Mem {c.memUtil}%</Tag>
                       <Tag>
                         Pods {c.podsHealthy}/{c.podsHealthy + c.podsPending + c.podsFailed}
                       </Tag>
-                    </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
-                      <span>CPU {c.cpuUtil}%</span>
-                      <span>Mem {c.memUtil}%</span>
-                      <span>Uptime {formatPercent(c.uptime)}</span>
-                      <span>Rollout {relativeTime(c.lastRollout)}</span>
                     </div>
                   </Card>
                 </button>
@@ -174,109 +241,67 @@ export default function InfrastructurePage() {
             </div>
           </div>
 
-          <Card>
-            <h2 className="font-display text-[22px] text-foreground">
-              Rollout Tracker
+          <div>
+            <h2 className="mb-3 font-display text-[24px] text-foreground">
+              Rollouts
             </h2>
-            <ul className="mt-3 space-y-3">
+            <div className="space-y-2">
               {rollouts.map((r) => (
-                <li
-                  key={r.id}
-                  className="rounded-lg border border-border bg-muted/60 p-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
+                <Card key={r.id}>
+                  <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[13px] font-semibold text-foreground">
-                        {r.name}
-                      </p>
-                      <p className="text-[12px] text-muted-foreground">
-                        {r.fromVersion} → {r.toVersion} · {r.targetClients.join(", ")}
+                      <p className="text-[13px] font-semibold">{r.name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {r.fromVersion} → {r.toVersion} · {r.status}
                       </p>
                     </div>
-                    <Badge
-                      tone={
-                        r.status === "in_progress"
-                          ? "navy"
-                          : r.status === "scheduled"
-                            ? "muted"
-                            : "healthy"
-                      }
-                    >
-                      {r.status.replace("_", " ")}
-                    </Badge>
+                    <p className="text-sm font-semibold tabular-nums">
+                      {r.progress}%
+                    </p>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-sm bg-muted">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                     <div
-                      className="h-full rounded-sm bg-[var(--color-navy-accent)]"
+                      className="h-full rounded-full bg-primary transition-all duration-500"
                       style={{ width: `${r.progress}%` }}
                     />
                   </div>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {r.progress}% · started {relativeTime(r.startedAt)}
-                  </p>
-                </li>
+                </Card>
               ))}
-            </ul>
-          </Card>
+            </div>
+          </div>
         </div>
 
-        <aside>
-          <Card className="sticky top-[88px]" elevated>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Open Incidents
-            </p>
-            <ul className="mt-3 space-y-3">
-              {incidents
-                .slice()
-                .sort((a, b) => {
-                  const order = { critical: 0, high: 1, medium: 2, low: 3 };
-                  return order[a.severity] - order[b.severity];
-                })
-                .map((i) => (
-                  <li
-                    key={i.id}
-                    className="rounded-lg border border-border bg-muted/60 p-3"
+        <div className="space-y-3">
+          <h2 className="font-display text-[24px] text-foreground">Incidents</h2>
+          {incidents
+            .filter((i) => i.status !== "resolved")
+            .map((i) => (
+              <Card key={i.id}>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[13px] font-semibold">{i.title}</p>
+                  <Badge
+                    tone={
+                      i.severity === "critical" || i.severity === "high"
+                        ? "critical"
+                        : "warning"
+                    }
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-[13px] font-semibold leading-snug text-foreground">
-                        {i.title}
-                      </p>
-                      <Badge
-                        tone={
-                          i.severity === "critical" || i.severity === "high"
-                            ? "critical"
-                            : "warning"
-                        }
-                      >
-                        {i.severity}
-                      </Badge>
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      {i.clientName} · {i.component}
-                    </p>
-                    <p className="mt-1 text-[12px] text-muted-foreground">
-                      {i.impact}
-                    </p>
-                    <p className="mt-2 text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
-                      {i.owner} · {i.status} · {relativeTime(i.openedAt)}
-                    </p>
-                  </li>
-                ))}
-            </ul>
-          </Card>
-        </aside>
+                    {i.severity}
+                  </Badge>
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {i.clientName} · {relativeTime(i.openedAt)}
+                </p>
+              </Card>
+            ))}
+        </div>
       </div>
 
-      {selected && (
-        <>
-          <button
-            type="button"
-            className="fixed inset-0 z-40 bg-black/60"
-            aria-label="Close drawer"
-            onClick={() => setSelected(null)}
-          />
-          <ClusterDrawer cluster={selected} onClose={() => setSelected(null)} />
-        </>
+      {liveCluster && (
+        <ClusterDrawer
+          cluster={liveCluster}
+          onClose={() => setSelected(null)}
+        />
       )}
     </div>
   );
