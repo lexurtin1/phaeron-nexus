@@ -115,20 +115,20 @@ export function ClientDossier({ client }: { client: Client }) {
   ];
 
   return (
-    <div className="mx-auto max-w-[1200px] px-5 py-6 md:px-8">
+    <div className="space-y-5">
       <Link
         href="/clients"
-        className="mb-4 inline-flex text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)] hover:text-[var(--color-navy-mid)]"
+        className="mb-1 inline-flex text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 hover:text-[#818cf8]"
       >
         ← All clients
       </Link>
 
-      <header className="glass-elevated mb-5 p-5 md:p-6">
+      <header className="rounded-xl border border-white/10 bg-[#171c2b]/90 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.35)] md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
               <HealthDot status={client.health} />
-              <h1 className="font-display text-[40px] leading-none text-[var(--color-navy-deep)]">
+              <h1 className="text-[32px] font-bold leading-none text-slate-100 md:text-[40px]">
                 {client.name}
               </h1>
             </div>
@@ -377,7 +377,7 @@ export function ClientDossier({ client }: { client: Client }) {
           {notes.map((n) => (
             <li
               key={n.id}
-              className="rounded-lg border border-[rgba(10,22,40,0.06)] bg-white/60 p-3"
+              className="rounded-lg border border-white/10 bg-white/5 p-3"
             >
               <p className="text-[13px] text-[var(--color-text)]">{n.body}</p>
               <p className="mt-1 text-[11px] text-[var(--color-text-faint)]">

@@ -50,16 +50,16 @@ export default function RevenuePage() {
   );
 
   return (
-    <div className="mx-auto max-w-[1500px] px-5 py-6 md:px-8">
+    <div className="space-y-5">
       <SectionHeader
         eyebrow="Commercial Intelligence"
         title="Revenue"
-        description="Strategic picture of pipeline, account health, and forecast confidence — not a CRM browser."
+        description="Pipeline, account health, and forecast confidence — commercial briefing."
         action={
           <button
             type="button"
             onClick={() => setShowMap((v) => !v)}
-            className="rounded-lg border border-[rgba(10,22,40,0.1)] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-navy-mid)]"
+            className="rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#0063ff]"
           >
             {showMap ? "Hide map" : "Geographic layer"}
           </button>

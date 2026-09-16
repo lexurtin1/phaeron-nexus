@@ -1,71 +1,75 @@
 @import "tailwindcss";
 
 :root {
-  /* Backgrounds */
-  --color-bg-base: #f7f8fc;
-  --color-bg-gradient-start: #ffffff;
-  --color-bg-gradient-end: #dce6f5;
-  --color-surface: rgba(255, 255, 255, 0.85);
-  --color-surface-elevated: rgba(255, 255, 255, 0.95);
-  --color-surface-glass: rgba(255, 255, 255, 0.6);
+  /* Dark UniFi / Neko ops palette */
+  --color-bg-base: #0b0f19;
+  --color-bg-gradient-start: #0b0f19;
+  --color-bg-gradient-end: #121826;
+  --color-surface: #171c2b;
+  --color-surface-elevated: #1c2233;
+  --color-surface-glass: rgba(23, 28, 43, 0.92);
 
-  /* Neon Navy */
-  --color-navy-deep: #0a1628;
-  --color-navy-primary: #0d2245;
-  --color-navy-mid: #1a3a6b;
-  --color-navy-accent: #1e4da0;
-  --color-navy-bright: #2563eb;
-  --color-navy-glow: rgba(30, 77, 160, 0.15);
-  --color-navy-neon: #3b82f6;
+  --color-navy-deep: #e2e8f0;
+  --color-navy-primary: #f1f5f9;
+  --color-navy-mid: #94a3b8;
+  --color-navy-accent: #818cf8;
+  --color-navy-bright: #a5b4fc;
+  --color-navy-glow: rgba(129, 140, 248, 0.16);
+  --color-navy-neon: #00c7ff;
 
-  /* Crimson */
-  --color-crimson-deep: #7f1d1d;
-  --color-crimson-primary: #b91c1c;
-  --color-crimson-accent: #dc2626;
-  --color-crimson-bright: #ef4444;
-  --color-crimson-glow: rgba(185, 28, 28, 0.12);
+  --color-crimson-deep: #be123c;
+  --color-crimson-primary: #e11d48;
+  --color-crimson-accent: #ef4444;
+  --color-crimson-bright: #ff6b9d;
+  --color-crimson-glow: rgba(239, 68, 68, 0.16);
 
-  /* Neutrals */
-  --color-text: #0a1628;
-  --color-text-secondary: #334155;
-  --color-text-muted: #64748b;
-  --color-text-faint: #94a3b8;
-  --color-border: rgba(10, 22, 40, 0.1);
-  --color-divider: rgba(10, 22, 40, 0.06);
+  --color-purple-deep: #4c1d95;
+  --color-purple-primary: #5b4cdb;
+  --color-purple-accent: #7b61ff;
+  --color-purple-bright: #a78bfa;
+  --color-purple-glow: rgba(123, 97, 255, 0.18);
 
-  /* Health */
-  --color-healthy: #059669;
-  --color-healthy-glow: rgba(5, 150, 105, 0.12);
-  --color-warning: #d97706;
-  --color-warning-glow: rgba(217, 119, 6, 0.12);
+  --color-text: #e2e8f0;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-text-faint: #64748b;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-divider: rgba(255, 255, 255, 0.06);
+
+  --color-healthy: #00d084;
+  --color-healthy-glow: rgba(0, 208, 132, 0.18);
+  --color-warning: #ff8c42;
+  --color-warning-glow: rgba(255, 140, 66, 0.18);
   --color-critical: var(--color-crimson-accent);
   --color-critical-glow: var(--color-crimson-glow);
 
-  --font-display: var(--font-instrument), "Instrument Serif", Georgia, serif;
-  --font-sans: "Satoshi", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: var(--font-open-sans), "Open Sans", Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-open-sans), "Open Sans", Helvetica, Arial, sans-serif;
 
-  --shadow-card: 0 1px 3px rgba(10, 22, 40, 0.06),
-    0 4px 16px rgba(10, 22, 40, 0.04);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 24px rgba(0, 0, 0, 0.25);
   --radius-card: 12px;
 }
 
 @theme inline {
   --font-family-sans: var(--font-sans);
   --font-family-display: var(--font-display);
-  --color-navy-deep: #0a1628;
-  --color-navy-primary: #0d2245;
-  --color-navy-mid: #1a3a6b;
-  --color-navy-accent: #1e4da0;
-  --color-navy-bright: #2563eb;
-  --color-navy-neon: #3b82f6;
-  --color-crimson: #dc2626;
-  --color-healthy: #059669;
-  --color-warning: #d97706;
-  --color-critical: #dc2626;
-  --color-ink: #0a1628;
-  --color-ink-secondary: #334155;
-  --color-ink-muted: #64748b;
-  --color-ink-faint: #94a3b8;
+  --color-navy-deep: #e2e8f0;
+  --color-navy-primary: #f1f5f9;
+  --color-navy-mid: #94a3b8;
+  --color-navy-accent: #818cf8;
+  --color-navy-bright: #a5b4fc;
+  --color-navy-neon: #00c7ff;
+  --color-crimson: #ef4444;
+  --color-purple: #7b61ff;
+  --color-purple-primary: #5b4cdb;
+  --color-healthy: #00d084;
+  --color-warning: #ff8c42;
+  --color-critical: #ef4444;
+  --color-ink: #e2e8f0;
+  --color-ink-secondary: #cbd5e1;
+  --color-ink-muted: #94a3b8;
+  --color-ink-faint: #64748b;
 }
 
 * {
@@ -81,14 +85,7 @@ body {
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-sans);
-  background: linear-gradient(
-    165deg,
-    #ffffff 0%,
-    #f0f4ff 30%,
-    #dce6f5 65%,
-    #c7d8f0 100%
-  );
-  background-attachment: fixed;
+  background: var(--color-bg-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -98,7 +95,8 @@ h2,
 h3,
 .font-display {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 a {
@@ -107,12 +105,13 @@ a {
 }
 
 ::selection {
-  background: rgba(30, 77, 160, 0.18);
+  background: rgba(123, 97, 255, 0.28);
 }
 
 .nexus-shell {
   position: relative;
   min-height: 100vh;
+  background: var(--color-bg-base);
 }
 
 .nexus-atmosphere {
@@ -121,14 +120,14 @@ a {
   inset: 0;
   z-index: 0;
   background: radial-gradient(
-      ellipse 80% 50% at 70% 40%,
-      rgba(255, 255, 255, 0.55),
-      transparent 70%
+      ellipse 70% 50% at 80% 20%,
+      rgba(129, 140, 248, 0.08),
+      transparent 60%
     ),
     radial-gradient(
-      ellipse 60% 40% at 20% 80%,
-      rgba(30, 77, 160, 0.06),
-      transparent 70%
+      ellipse 50% 40% at 10% 80%,
+      rgba(123, 97, 255, 0.08),
+      transparent 65%
     );
 }
 
@@ -137,22 +136,38 @@ a {
   z-index: 1;
 }
 
+.tactical-grid {
+  position: relative;
+}
+
+.tactical-grid::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.35;
+  background-image: linear-gradient(
+      rgba(148, 163, 184, 0.06) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 75% 65% at 70% 40%, black, transparent);
+}
+
 .glass-panel {
   background: var(--color-surface);
-  border: 1px solid rgba(10, 22, 40, 0.08);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
 }
 
 .glass-elevated {
   background: var(--color-surface-elevated);
-  border: 1px solid rgba(10, 22, 40, 0.08);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
 }
 
 .health-dot {
@@ -178,13 +193,17 @@ a {
   animation: pulse-critical 1.8s ease-in-out infinite;
 }
 
+.intel-glow {
+  box-shadow: 0 0 0 3px var(--color-purple-glow);
+}
+
 @keyframes pulse-critical {
   0%,
   100% {
     box-shadow: 0 0 0 3px var(--color-critical-glow);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.2);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.28);
   }
 }
 
@@ -200,6 +219,7 @@ a {
 
 .live-pulse {
   animation: breathe 2.4s ease-in-out infinite;
+  color: var(--color-purple-accent);
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -211,10 +231,10 @@ a {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(10, 22, 40, 0.12);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(10, 22, 40, 0.22);
+  background: rgba(148, 163, 184, 0.4);
 }

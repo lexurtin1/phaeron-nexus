@@ -18,10 +18,15 @@ export type PipelineStage =
   | "Live";
 
 export type OntologyNodeType =
-  | "core"
-  | "extension"
-  | "domain_pack"
-  | "client"
+  | "platform"
+  | "distributor"
+  | "administrator"
+  | "custodian"
+  | "asset_manager"
+  | "market_infra"
+  | "product"
+  | "channel"
+  | "concept"
   | "recent";
 
 export type IncidentSeverity = "low" | "medium" | "high" | "critical";

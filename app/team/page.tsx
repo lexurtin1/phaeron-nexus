@@ -43,7 +43,7 @@ export default function TeamPage() {
   }, [tasks, moduleFilter, priorityFilter]);
 
   return (
-    <div className="mx-auto max-w-[1400px] px-5 py-6 md:px-8">
+    <div className="space-y-5">
       <SectionHeader
         eyebrow="Internal Operating Layer"
         title="Team"

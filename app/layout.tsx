@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
-import { Instrument_Serif } from "next/font/google";
-import { TopNav } from "@/components/navigation/TopNav";
+import { Open_Sans } from "next/font/google";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import "./globals.css";
 
-const instrumentSerif = Instrument_Serif({
-  weight: "400",
+const openSans = Open_Sans({
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-instrument",
+  variable: "--font-open-sans",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Phaeron NEXUS",
+  title: "Phaeron NEXUS · Internal Management System",
   description:
-    "Phaeron NEXUS — internal command centre for the global intelligence network.",
+    "Phaeron NEXUS — internal management system for clients, fleet operations, revenue, and GraphRAG.",
 };
 
 export default function RootLayout({
@@ -23,19 +23,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={instrumentSerif.variable}>
-      <head>
-        <link
-          href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>
-        <div className="nexus-shell">
-          <div className="nexus-atmosphere" aria-hidden />
-          <div className="nexus-content">
-            <TopNav />
-            <main>{children}</main>
+    <html lang="en" className={`dark ${openSans.variable}`}>
+      <body className={openSans.className}>
+        <div className="min-h-screen bg-[#0b0f19] text-slate-100">
+          <div className="nexus-atmosphere" />
+          <div className="relative z-10 flex min-h-screen">
+            <Sidebar />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <DashboardHeader />
+              <main className="flex-1 p-4 md:p-6">{children}</main>
+            </div>
           </div>
         </div>
       </body>

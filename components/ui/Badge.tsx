@@ -23,15 +23,16 @@ export function Badge({
   className,
 }: {
   children: React.ReactNode;
-  tone?: "navy" | "healthy" | "warning" | "critical" | "muted";
+  tone?: "navy" | "purple" | "healthy" | "warning" | "critical" | "muted";
   className?: string;
 }) {
   const tones = {
     navy: "bg-[var(--color-navy-glow)] text-[var(--color-navy-mid)]",
+    purple: "bg-[var(--color-purple-glow)] text-[var(--color-purple-primary)]",
     healthy: "bg-[var(--color-healthy-glow)] text-[var(--color-healthy)]",
     warning: "bg-[var(--color-warning-glow)] text-[var(--color-warning)]",
     critical: "bg-[var(--color-critical-glow)] text-[var(--color-critical)]",
-    muted: "bg-[rgba(10,22,40,0.05)] text-[var(--color-text-muted)]",
+    muted: "bg-white/5 text-[var(--color-text-muted)]",
   };
   return (
     <span
@@ -56,7 +57,7 @@ export function Tag({
   return (
     <span
       className={cn(
-        "inline-flex rounded-md border border-[rgba(10,22,40,0.08)] bg-white/70 px-2 py-0.5 text-[11px] font-medium text-[var(--color-text-secondary)]",
+        "inline-flex rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-medium text-[var(--color-text-secondary)]",
         className
       )}
     >
@@ -68,7 +69,7 @@ export function Tag({
 export function Divider({ className }: { className?: string }) {
   return (
     <div
-      className={cn("h-px w-full bg-[rgba(10,22,40,0.06)]", className)}
+      className={cn("h-px w-full bg-white/10", className)}
       role="separator"
     />
   );

@@ -21,3 +21,8 @@ yarn-error.log*
 # TypeScript
 next-env.d.ts
 *.tsbuildinfo
+.vercel
+.env*
+
+# Local inspiration clones (do not ship)
+_inspiration/

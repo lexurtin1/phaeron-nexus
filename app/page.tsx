@@ -1,5 +1,5 @@
-import { GlobalCommandView } from "@/components/panels/GlobalCommandView";
+import { NekoOverview } from "@/components/panels/NekoOverview";
 
 export default function HomePage() {
-  return <GlobalCommandView />;
+  return <NekoOverview />;
 }
