@@ -57,13 +57,21 @@ export function WorldTrafficMap({ data, onCountryClick }: WorldTrafficMapProps) 
 
   const maxTraffic = useMemo(() => {
     if (!data || data.length === 0) return 1;
-    return Math.max(...data.map((d) => d.totalDownload + d.totalUpload));
+    const max = Math.max(
+      0,
+      ...data.map((d) => (d.totalDownload || 0) + (d.totalUpload || 0))
+    );
+    return Number.isFinite(max) && max > 0 ? max : 1;
   }, [data]);
 
   const colorScale = useMemo(() => {
-    return scaleLinear<string>()
-      .domain([0, maxTraffic * 0.1, maxTraffic * 0.5, maxTraffic])
-      .range([...mapTheme.scale]);
+    try {
+      return scaleLinear<string>()
+        .domain([0, maxTraffic * 0.1, maxTraffic * 0.5, maxTraffic])
+        .range([...mapTheme.scale]);
+    } catch {
+      return () => mapTheme.noData;
+    }
   }, [maxTraffic, mapTheme]);
 
   const countryMap = useMemo(() => {

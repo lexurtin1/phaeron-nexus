@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   AlertTriangle,
   Building2,
@@ -9,7 +9,6 @@ import {
   Server,
   Zap,
 } from "lucide-react";
-import { animate, motion, useTransform, useMotionValue } from "framer-motion";
 import { cn, formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
 import type { StatsSummary } from "@/lib/neko-adapters";
 
@@ -18,8 +17,6 @@ interface StatsCardsProps {
   activeKey?: string | null;
   onSelect?: (key: string) => void;
 }
-
-const animationConfig = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const };
 
 function AnimatedValue({
   value,
@@ -32,28 +29,35 @@ function AnimatedValue({
   className?: string;
   title?: string;
 }) {
-  const motionValue = useMotionValue(0);
-  const display = useTransform(motionValue, (v) => {
-    const safe = Number.isFinite(v) ? Math.max(0, v) : 0;
-    return formatter(Math.round(Math.min(safe, Number.MAX_SAFE_INTEGER)));
-  });
-  const isFirstRender = useRef(true);
+  const [display, setDisplay] = useState(() =>
+    formatter(Number.isFinite(value) ? Math.max(0, value) : 0)
+  );
+  const prev = useRef(value);
 
   useEffect(() => {
     const target = Number.isFinite(value) ? Math.max(0, value) : 0;
-    if (isFirstRender.current) {
-      motionValue.jump(target);
-      isFirstRender.current = false;
-      return;
-    }
-    const controls = animate(motionValue, target, animationConfig);
-    return () => controls.stop();
-  }, [value, motionValue]);
+    const from = Number.isFinite(prev.current) ? prev.current : target;
+    prev.current = target;
+    const start = performance.now();
+    const duration = 450;
+    let raf = 0;
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const current = from + (target - from) * eased;
+      setDisplay(formatter(current));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, formatter]);
 
   return (
-    <motion.span className={className} title={title}>
+    <span className={className} title={title}>
       {display}
-    </motion.span>
+    </span>
   );
 }
 
@@ -100,7 +104,7 @@ function AnimatedStatCard({
         value={value}
         formatter={formatter}
         className="mt-2.5 block truncate text-lg font-semibold leading-none tabular-nums"
-        title={formatter(value)}
+        title={formatter(Number.isFinite(value) ? value : 0)}
       />
       {subvalue && (
         <p className="mt-1.5 truncate text-[11px] text-muted-foreground">
@@ -144,7 +148,7 @@ export function StatsCards({ data, activeKey, onSelect }: StatsCardsProps) {
       />
       <AnimatedStatCard
         value={data.evaluationsPassing}
-        formatter={(n) => `${n}/${data.evaluationsTotal}`}
+        formatter={(n) => `${Math.round(n)}/${data.evaluationsTotal}`}
         label="Evals passing"
         icon={CheckCircle2}
         color="#0f766e"

@@ -198,32 +198,6 @@ export function NekoOverview() {
     return { timestamps, rps, p95 };
   }, [organisations]);
 
-  if (isLoading && !snapshot) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
-        Connecting to Nexus LivePulse…
-      </div>
-    );
-  }
-
-  if (isError && !snapshot) {
-    return (
-      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-sm">
-        <p className="text-muted-foreground">
-          LivePulse unavailable
-          {error instanceof Error ? ` · ${error.message}` : ""}.
-        </p>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="rounded-lg border border-border bg-card px-3 py-1.5 text-[12px] font-semibold"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
   const kpiDetail = useMemo(() => {
     if (!selectedKpi) return null;
     switch (selectedKpi) {
@@ -331,6 +305,33 @@ export function NekoOverview() {
     summary.weighted,
     opportunities,
   ]);
+
+  if (isLoading && !snapshot) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
+        Connecting to Nexus LivePulse…
+      </div>
+    );
+  }
+
+  if (isError && !snapshot) {
+    return (
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-sm">
+        <p className="text-muted-foreground">
+          LivePulse unavailable
+          {error instanceof Error ? ` · ${error.message}` : ""}.
+        </p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="rounded-lg border border-border bg-card px-3 py-1.5 text-[12px] font-semibold"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-4">
