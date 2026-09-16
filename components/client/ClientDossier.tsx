@@ -135,21 +135,21 @@ export function ClientDossier({ client }: { client: Client }) {
     <div className="space-y-5">
       <Link
         href="/clients"
-        className="mb-1 inline-flex text-[11px] font-semibold uppercase tracking-[0.12em] text-[#64748b] hover:text-[#0a1628]"
+        className="mb-1 inline-flex text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground"
       >
         ← All clients
       </Link>
 
-      <header className="rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-[0_1px_2px_rgba(10,22,40,0.04)] md:p-6">
+      <header className="rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(10,22,40,0.04)] md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
               <HealthDot status={client.health} />
-              <h1 className="text-[32px] font-bold leading-none text-[#0a1628] md:text-[40px]">
+              <h1 className="text-[32px] font-bold leading-none text-foreground md:text-[40px]">
                 {client.name}
               </h1>
             </div>
-            <p className="mt-2 text-[13px] text-[var(--color-text-secondary)]">
+            <p className="mt-2 text-[13px] text-muted-foreground">
               {client.industry} · {client.city}, {client.country} ·{" "}
               {client.region}
             </p>
@@ -174,13 +174,13 @@ export function ClientDossier({ client }: { client: Client }) {
               <span className="live-pulse inline-block">●</span>{" "}
               {healthLabel(client.health)}
             </Badge>
-            <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+            <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               ARR
             </p>
-            <p className="text-2xl font-semibold tabular-nums text-[#0a1628]">
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
               {client.arr ? formatCurrency(client.arr, true) : "—"}
             </p>
-            <p className="text-[12px] text-[#64748b]">
+            <p className="text-[12px] text-muted-foreground">
               MRR {formatCurrency(intel.mrr, true)} · YTD{" "}
               {formatCurrency(intel.ytdRevenue, true)}
             </p>
@@ -190,28 +190,28 @@ export function ClientDossier({ client }: { client: Client }) {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Pricing tier
           </p>
-          <p className="mt-1 text-xl font-semibold text-[#0a1628]">
+          <p className="mt-1 text-xl font-semibold text-foreground">
             {intel.pricingTier}
           </p>
-          <p className="mt-1 text-[12px] text-[#64748b]">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             Contracted ARR {formatCurrency(client.arr || intel.mrr * 12, true)}
           </p>
         </Card>
         <Card>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Last meeting
           </p>
-          <p className="mt-1 text-sm font-semibold text-[#0a1628]">
+          <p className="mt-1 text-sm font-semibold text-foreground">
             {intel.lastMeeting.title}
           </p>
-          <p className="mt-1 text-[12px] text-[#64748b]">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             {relativeTime(intel.lastMeeting.date)}
             {intel.lastMeeting.location ? ` · ${intel.lastMeeting.location}` : ""}
           </p>
-          <p className="mt-1 text-[11px] text-[#94a3b8]">
+          <p className="mt-1 text-[11px] text-muted-foreground">
             {intel.lastMeeting.attendees.join(" · ")}
           </p>
         </Card>
@@ -219,10 +219,10 @@ export function ClientDossier({ client }: { client: Client }) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#e11d48]">
             Next meeting
           </p>
-          <p className="mt-1 text-sm font-semibold text-[#0a1628]">
+          <p className="mt-1 text-sm font-semibold text-foreground">
             {intel.nextMeeting.title}
           </p>
-          <p className="mt-1 text-[12px] text-[#64748b]">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             {new Date(intel.nextMeeting.date).toLocaleString("en-GB", {
               day: "numeric",
               month: "short",
@@ -231,21 +231,21 @@ export function ClientDossier({ client }: { client: Client }) {
             })}
             {intel.nextMeeting.location ? ` · ${intel.nextMeeting.location}` : ""}
           </p>
-          <p className="mt-1 text-[11px] text-[#94a3b8]">
+          <p className="mt-1 text-[11px] text-muted-foreground">
             {intel.nextMeeting.attendees.join(" · ")}
           </p>
         </Card>
       </div>
 
       <Card>
-        <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+        <h2 className="font-display text-[22px] text-foreground">
           Phaeron products in use
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {intel.products.map((p) => (
             <span
               key={p}
-              className="rounded-lg border border-[#0a1628]/15 bg-[#0a1628]/5 px-3 py-1.5 text-[12px] font-semibold text-[#0a1628]"
+              className="rounded-lg border border-[#0a1628]/15 bg-primary/5 px-3 py-1.5 text-[12px] font-semibold text-foreground"
             >
               {p}
             </span>
@@ -261,15 +261,15 @@ export function ClientDossier({ client }: { client: Client }) {
       </Card>
 
       <section>
-        <h2 className="mb-3 font-display text-[24px] text-[var(--color-navy-deep)]">
+        <h2 className="mb-3 font-display text-[24px] text-foreground">
           Network & operational stats
         </h2>
-        <div className="mb-4 rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
+        <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-semibold text-[#0a1628]">
+            <p className="text-sm font-semibold text-foreground">
               Traffic · latency overlay (24h)
             </p>
-            <p className="text-[11px] text-[#64748b]">
+            <p className="text-[11px] text-muted-foreground">
               {formatNumber(client.apiCalls24h)} calls · P99{" "}
               {formatLatency(client.latencyP99)}
             </p>
@@ -321,12 +321,12 @@ export function ClientDossier({ client }: { client: Client }) {
           {metrics.map((m) => (
             <Card key={m.label} className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {m.label}
                 </p>
                 <HealthDot status={m.status} />
               </div>
-              <p className="text-[18px] font-semibold text-[var(--color-navy-deep)]">
+              <p className="text-[18px] font-semibold text-foreground">
                 {m.value}
               </p>
               <Sparkline data={m.spark} color={m.color} />
@@ -337,18 +337,18 @@ export function ClientDossier({ client }: { client: Client }) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+          <h2 className="font-display text-[22px] text-foreground">
             Industry news
           </h2>
           <ul className="mt-3 space-y-3">
             {intel.news.map((n) => (
               <li
                 key={n.title}
-                className="rounded-lg border border-[#e2e8f0] bg-[#f4f6f9]/70 px-3 py-2.5"
+                className="rounded-lg border border-border bg-muted/60/70 px-3 py-2.5"
               >
-                <p className="text-sm font-semibold text-[#0a1628]">{n.title}</p>
-                <p className="mt-1 text-[12px] text-[#64748b]">{n.summary}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.1em] text-[#94a3b8]">
+                <p className="text-sm font-semibold text-foreground">{n.title}</p>
+                <p className="mt-1 text-[12px] text-muted-foreground">{n.summary}</p>
+                <p className="mt-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
                   {n.source} · {n.date}
                 </p>
               </li>
@@ -357,24 +357,24 @@ export function ClientDossier({ client }: { client: Client }) {
         </Card>
 
         <Card>
-          <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+          <h2 className="font-display text-[22px] text-foreground">
             Key contacts
           </h2>
           <ul className="mt-3 space-y-2">
             {client.contacts.map((c) => (
               <li
                 key={c.id}
-                className="flex items-center justify-between rounded-lg bg-[#f4f6f9] px-3 py-2 text-[12px]"
+                className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-2 text-[12px]"
               >
                 <span>
-                  <span className="font-semibold text-[var(--color-navy-deep)]">
+                  <span className="font-semibold text-foreground">
                     {c.name}
                   </span>
-                  <span className="text-[var(--color-text-muted)]">
+                  <span className="text-muted-foreground">
                     {" "}
                     · {c.role}
                   </span>
-                  <span className="mt-0.5 block text-[11px] text-[#94a3b8]">
+                  <span className="mt-0.5 block text-[11px] text-muted-foreground">
                     {c.email}
                   </span>
                 </span>
@@ -393,24 +393,24 @@ export function ClientDossier({ client }: { client: Client }) {
             ))}
           </ul>
           <Divider className="my-3" />
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Commercial context
           </h3>
           <dl className="mt-2 space-y-2 text-[13px]">
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Stage</dt>
+              <dt className="text-muted-foreground">Stage</dt>
               <dd className="font-semibold">{client.commercialStage}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Relationship</dt>
+              <dt className="text-muted-foreground">Relationship</dt>
               <dd className="font-semibold">{client.relationshipScore}/100</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Open opps</dt>
+              <dt className="text-muted-foreground">Open opps</dt>
               <dd className="font-semibold">{client.openOpportunities}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Last contact</dt>
+              <dt className="text-muted-foreground">Last contact</dt>
               <dd className="font-semibold">
                 {relativeTime(client.lastCommercialContact)}
               </dd>
@@ -421,10 +421,10 @@ export function ClientDossier({ client }: { client: Client }) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+          <h2 className="font-display text-[22px] text-foreground">
             Ontology state
           </h2>
-          <p className="mt-1 text-[12px] text-[var(--color-text-muted)]">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             Master ontology {client.ontologyVersion} · Runtime{" "}
             {client.runtimeVersion}
           </p>
@@ -439,11 +439,11 @@ export function ClientDossier({ client }: { client: Client }) {
         </Card>
 
         <Card>
-          <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+          <h2 className="font-display text-[22px] text-foreground">
             Open actions
           </h2>
           {clientTasks.length === 0 && clientIncidents.length === 0 ? (
-            <p className="mt-3 text-[13px] text-[var(--color-text-muted)]">
+            <p className="mt-3 text-[13px] text-muted-foreground">
               No open actions against this account.
             </p>
           ) : (
@@ -453,10 +453,10 @@ export function ClientDossier({ client }: { client: Client }) {
                   key={i.id}
                   className="rounded-lg border border-[#e11d48]/20 bg-[#e11d48]/5 p-3"
                 >
-                  <p className="text-[13px] font-semibold text-[#0a1628]">
+                  <p className="text-[13px] font-semibold text-foreground">
                     Incident · {i.title}
                   </p>
-                  <p className="mt-1 text-[12px] text-[#64748b]">
+                  <p className="mt-1 text-[12px] text-muted-foreground">
                     {i.severity} · {relativeTime(i.openedAt)}
                   </p>
                 </li>
@@ -467,7 +467,7 @@ export function ClientDossier({ client }: { client: Client }) {
                   className="rounded-lg bg-[rgba(10,22,40,0.03)] p-3"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-[13px] font-semibold text-[var(--color-navy-deep)]">
+                    <p className="text-[13px] font-semibold text-foreground">
                       {t.title}
                     </p>
                     <Badge
@@ -482,7 +482,7 @@ export function ClientDossier({ client }: { client: Client }) {
                       {t.priority}
                     </Badge>
                   </div>
-                  <p className="mt-1 text-[12px] text-[var(--color-text-muted)]">
+                  <p className="mt-1 text-[12px] text-muted-foreground">
                     {t.assigneeName} · due {t.dueDate}
                   </p>
                 </li>
@@ -493,7 +493,7 @@ export function ClientDossier({ client }: { client: Client }) {
       </div>
 
       <Card>
-        <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+        <h2 className="font-display text-[22px] text-foreground">
           Notes
         </h2>
         <form
@@ -523,10 +523,10 @@ export function ClientDossier({ client }: { client: Client }) {
           {notes.map((n) => (
             <li
               key={n.id}
-              className="rounded-lg border border-[#e2e8f0] bg-[#f4f6f9] p-3"
+              className="rounded-lg border border-border bg-muted/60 p-3"
             >
-              <p className="text-[13px] text-[var(--color-text)]">{n.body}</p>
-              <p className="mt-1 text-[11px] text-[var(--color-text-faint)]">
+              <p className="text-[13px] text-foreground">{n.body}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
                 {n.author} · {relativeTime(n.createdAt)}
               </p>
             </li>

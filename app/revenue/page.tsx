@@ -59,7 +59,7 @@ export default function RevenuePage() {
           <button
             type="button"
             onClick={() => setShowMap((v) => !v)}
-            className="rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#0063ff]"
+            className="rounded-lg border border-border bg-card px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#0063ff]"
           >
             {showMap ? "Hide map" : "Geographic layer"}
           </button>
@@ -68,12 +68,12 @@ export default function RevenuePage() {
 
       <div className="mb-5 grid gap-4 lg:grid-cols-[1.4fr_360px]">
         <Card elevated className="space-y-4">
-          <h2 className="font-display text-[28px] leading-snug text-[var(--color-navy-deep)] md:text-[32px]">
+          <h2 className="font-display text-[28px] leading-snug text-foreground md:text-[32px]">
             {formatCurrency(summary.totalOpen, true)} open,{" "}
             {formatCurrency(summary.weighted, true)} weighted — the rest is
             timing and execution, not doubt.
           </h2>
-          <p className="text-[13px] text-[var(--color-text-secondary)]">
+          <p className="text-[13px] text-muted-foreground">
             Plan on the weighted bar. Coverage against next-quarter target is{" "}
             {summary.pipelineCoverage.toFixed(1)}×.
             {summary.dealsToTarget > 0
@@ -90,10 +90,10 @@ export default function RevenuePage() {
                 key={row.label}
                 className="rounded-lg bg-[rgba(10,22,40,0.03)] p-3"
               >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {row.label}
                 </p>
-                <p className="mt-1 font-display text-[26px] text-[var(--color-navy-deep)]">
+                <p className="mt-1 font-display text-[26px] text-foreground">
                   {formatCurrency(row.value, true)}
                 </p>
               </div>
@@ -102,36 +102,36 @@ export default function RevenuePage() {
         </Card>
 
         <Card>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Forecast Summary
           </p>
           <dl className="mt-3 space-y-2.5 text-[13px]">
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Open pipeline</dt>
+              <dt className="text-muted-foreground">Open pipeline</dt>
               <dd className="font-semibold">
                 {formatCurrency(summary.totalOpen, true)}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Weighted</dt>
+              <dt className="text-muted-foreground">Weighted</dt>
               <dd className="font-semibold">
                 {formatCurrency(summary.weighted, true)}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Confidence-weighted</dt>
+              <dt className="text-muted-foreground">Confidence-weighted</dt>
               <dd className="font-semibold">
                 {formatCurrency(summary.confidenceWeighted, true)}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Coverage</dt>
+              <dt className="text-muted-foreground">Coverage</dt>
               <dd className="font-semibold">
                 {summary.pipelineCoverage.toFixed(2)}×
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[var(--color-text-muted)]">Deals to target</dt>
+              <dt className="text-muted-foreground">Deals to target</dt>
               <dd className="font-semibold">{summary.dealsToTarget}</dd>
             </div>
           </dl>
@@ -140,7 +140,7 @@ export default function RevenuePage() {
 
       {showMap && (
         <Card className="mb-5">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Geographic concentration
           </p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -152,10 +152,10 @@ export default function RevenuePage() {
                 <div className="flex items-center gap-2">
                   <HealthDot status={c.health} />
                   <div>
-                    <p className="text-[13px] font-semibold text-[var(--color-navy-deep)]">
+                    <p className="text-[13px] font-semibold text-foreground">
                       {c.name}
                     </p>
-                    <p className="text-[11px] text-[var(--color-text-muted)]">
+                    <p className="text-[11px] text-muted-foreground">
                       {c.city} · {maturityLabel(c.maturity)}
                     </p>
                   </div>
@@ -169,20 +169,20 @@ export default function RevenuePage() {
         </Card>
       )}
 
-      <h2 className="mb-3 font-display text-[24px] text-[var(--color-navy-deep)]">
+      <h2 className="mb-3 font-display text-[24px] text-foreground">
         Pipeline
       </h2>
       <div className="mb-6 flex gap-3 overflow-x-auto pb-2">
         {byStage.map((col) => (
           <div
             key={col.stage}
-            className="w-[220px] shrink-0 rounded-xl border border-[rgba(10,22,40,0.06)] bg-[rgba(255,255,255,0.55)] p-3"
+            className="w-[220px] shrink-0 rounded-xl border border-border bg-[rgba(255,255,255,0.55)] p-3"
           >
             <div className="mb-2 flex items-baseline justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 {col.stage}
               </p>
-              <p className="text-[12px] font-semibold text-[var(--color-navy-deep)]">
+              <p className="text-[12px] font-semibold text-foreground">
                 {formatCurrency(col.total, true)}
               </p>
             </div>
@@ -190,7 +190,7 @@ export default function RevenuePage() {
               {col.items.map((o) => (
                 <Card key={o.id} padding="sm" className="space-y-1.5">
                   <div className="flex items-start justify-between gap-1">
-                    <p className="text-[12px] font-semibold leading-snug text-[var(--color-navy-deep)]">
+                    <p className="text-[12px] font-semibold leading-snug text-foreground">
                       {o.clientName}
                     </p>
                     <HealthDot status={o.health} />
@@ -198,16 +198,16 @@ export default function RevenuePage() {
                   <p className="text-[14px] font-semibold">
                     {formatCurrency(o.value, true)}
                   </p>
-                  <p className="text-[11px] text-[var(--color-text-muted)]">
+                  <p className="text-[11px] text-muted-foreground">
                     {o.geography} · {o.owner} · {o.daysInStage}d
                   </p>
-                  <p className="text-[11px] leading-snug text-[var(--color-text-secondary)]">
+                  <p className="text-[11px] leading-snug text-muted-foreground">
                     {o.nextAction}
                   </p>
                 </Card>
               ))}
               {col.items.length === 0 && (
-                <p className="px-1 py-4 text-center text-[11px] text-[var(--color-text-faint)]">
+                <p className="px-1 py-4 text-center text-[11px] text-muted-foreground">
                   Empty stage
                 </p>
               )}
@@ -216,14 +216,14 @@ export default function RevenuePage() {
         ))}
       </div>
 
-      <h2 className="mb-3 font-display text-[24px] text-[var(--color-navy-deep)]">
+      <h2 className="mb-3 font-display text-[24px] text-foreground">
         Account Health
       </h2>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {accountHealth.map((c) => (
           <Card key={c.id}>
             <div className="flex items-center justify-between">
-              <h3 className="font-display text-[20px] text-[var(--color-navy-deep)]">
+              <h3 className="font-display text-[20px] text-foreground">
                 {c.name}
               </h3>
               <Badge
@@ -240,25 +240,25 @@ export default function RevenuePage() {
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-faint)]">
+                <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
                   Commercial
                 </p>
                 <p className="font-semibold">{c.commercialStage}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-faint)]">
+                <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
                   Deployment
                 </p>
                 <p className="font-semibold">{maturityLabel(c.maturity)}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-faint)]">
+                <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
                   Relationship
                 </p>
                 <p className="font-semibold">{c.relationshipScore}/100</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-faint)]">
+                <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
                   Revenue
                 </p>
                 <p className="font-semibold">

@@ -25,6 +25,20 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-GB").format(value);
 }
 
+export function formatBytes(bytes: number, decimals = 2): string {
+  const normalized = Number.isFinite(bytes) ? bytes : 0;
+  if (normalized === 0) return "0 B";
+  if (normalized < 0) return `-${formatBytes(-normalized, decimals)}`;
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB", "TB", "PB"];
+  const i = Math.min(
+    Math.floor(Math.log(normalized) / Math.log(k)),
+    sizes.length - 1
+  );
+  const value = normalized / Math.pow(k, i);
+  return `${value.toFixed(decimals)} ${sizes[i]}`;
+}
+
 export function formatLatency(ms: number): string {
   return `${Math.round(ms)}ms`;
 }

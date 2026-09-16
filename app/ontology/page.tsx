@@ -8,7 +8,7 @@ const OntologyGraph = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-[#e2e8f0] bg-white text-[13px] text-[#6b7280]">
+      <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-border bg-card text-[13px] text-muted-foreground">
         Settling GraphRAG network…
       </div>
     ),

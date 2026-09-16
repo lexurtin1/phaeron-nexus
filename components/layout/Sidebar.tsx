@@ -10,9 +10,11 @@ import {
   PoundSterling,
   Users,
   Activity,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { globalKpis, incidents } from "@/data/mock";
+import { ThemeToggle } from "@/components/common/theme-toggle";
 
 const NAV = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
@@ -23,8 +25,16 @@ const NAV = [
   { href: "/team", label: "Team", icon: Users },
 ];
 
-export function Sidebar() {
-  const pathname = usePathname();
+const TITLES: Record<string, string> = {
+  "/": "Overview",
+  "/clients": "Clients",
+  "/ontology": "GraphRAG",
+  "/infrastructure": "Infrastructure",
+  "/revenue": "Revenue",
+  "/team": "Team",
+};
+
+function useFleetStatus() {
   const kpis = globalKpis();
   const critical = incidents.some(
     (i) => i.severity === "critical" && i.status !== "resolved"
@@ -34,31 +44,39 @@ export function Sidebar() {
     : kpis.openIncidents > 0
       ? "degraded"
       : "healthy";
-
   const statusClass =
     backendStatus === "healthy"
       ? "bg-emerald-500"
       : backendStatus === "unhealthy"
         ? "bg-rose-500"
         : "bg-amber-500";
+  return { kpis, backendStatus, statusClass };
+}
+
+export function Sidebar() {
+  const pathname = usePathname();
+  const { kpis, statusClass } = useFleetStatus();
 
   return (
-    <aside className="hidden lg:flex w-72 h-screen sticky top-0 flex-col border-r border-[#e2e8f0] bg-white">
-      <div className="border-b border-[#e2e8f0] px-5 pt-5 pb-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets/phaeron-wordmark.png"
-          alt="Phaeron"
-          className="block w-full h-auto max-h-[80px] object-contain object-left"
-        />
+    <aside className="sticky top-0 hidden h-screen w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
+      <div className="border-b border-sidebar-border px-5 pb-4 pt-5">
+        <div className="rounded-lg bg-white px-2 py-2 dark:bg-white/95">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/assets/phaeron-nexus.png"
+            alt="Phaeron NEXUS"
+            className="block h-auto w-full max-h-[56px] object-contain object-left"
+          />
+        </div>
         <div className="mt-3 flex items-center gap-2">
-          <h1 className="font-bold text-lg leading-none text-[#0a1628]">
-            NEXUS
-          </h1>
-          <span className="relative inline-flex h-2.5 w-2.5" title="Fleet status">
+          <h1 className="text-lg font-bold leading-none">NEXUS</h1>
+          <span
+            className="relative inline-flex h-2.5 w-2.5"
+            title="Fleet status"
+          >
             <span
               className={cn(
-                "absolute inline-flex h-full w-full rounded-full opacity-70 animate-ping",
+                "absolute inline-flex h-full w-full animate-ping rounded-full opacity-70",
                 statusClass
               )}
             />
@@ -70,12 +88,12 @@ export function Sidebar() {
             />
           </span>
         </div>
-        <p className="mt-1 text-[12px] font-medium text-[#334155] leading-snug">
+        <p className="mt-1 text-[12px] font-medium leading-snug text-muted-foreground">
           Internal Management System
         </p>
       </div>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {NAV.map((item) => {
           const active =
             item.href === "/"
@@ -89,31 +107,25 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
                 active
-                  ? "bg-[#0a1628] !text-white shadow-sm"
-                  : "text-[#0a1628] hover:bg-[#f4f6f9]"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
-              <Icon
-                className={cn(
-                  "h-5 w-5 shrink-0",
-                  active ? "!text-white" : "text-[#0a1628]"
-                )}
-                strokeWidth={2.25}
-              />
+              <Icon className="h-5 w-5 shrink-0" strokeWidth={2.25} />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-[#e2e8f0] space-y-2">
-        <div className="flex items-center gap-2 rounded-xl bg-[#f4f6f9] px-3 py-2.5">
-          <Activity className="h-4 w-4 text-[#e11d48]" />
+      <div className="space-y-2 border-t border-sidebar-border p-4">
+        <div className="flex items-center gap-2 rounded-xl bg-sidebar-accent px-3 py-2.5">
+          <Activity className="h-4 w-4 text-primary" />
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Fleet integrity
             </p>
-            <p className="text-sm font-semibold text-[#0a1628] tabular-nums">
+            <p className="tabular-nums text-sm font-semibold">
               {kpis.fleetUptime.toFixed(2)}% · {kpis.openIncidents} incidents
             </p>
           </div>
@@ -123,16 +135,82 @@ export function Sidebar() {
           <img
             src="/assets/headshot.png"
             alt=""
-            className="h-8 w-8 rounded-full border border-[#e2e8f0] object-cover"
+            className="h-8 w-8 rounded-full border border-border object-cover"
           />
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#0a1628] truncate">
-              Alex Curtin
+            <p className="truncate text-sm font-semibold">Alex Curtin</p>
+            <p className="text-[11px] text-muted-foreground">
+              Commercial · EMEA
             </p>
-            <p className="text-[11px] text-[#64748b]">Commercial · EMEA</p>
           </div>
         </div>
       </div>
     </aside>
+  );
+}
+
+export function DashboardHeader() {
+  const pathname = usePathname();
+  const base = Object.keys(TITLES)
+    .sort((a, b) => b.length - a.length)
+    .find((k) => (k === "/" ? pathname === "/" : pathname.startsWith(k)));
+  const title = TITLES[base ?? "/"] ?? "NEXUS";
+
+  return (
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/90 px-4 backdrop-blur-md md:px-6">
+      <div className="flex min-w-0 items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 lg:hidden">
+          <div className="rounded-md bg-white px-1.5 py-1 dark:bg-white/95">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/phaeron-nexus.png"
+              alt="Phaeron"
+              className="h-6 w-auto object-contain"
+            />
+          </div>
+        </div>
+        <span className="font-semibold text-foreground">{title}</span>
+        <span className="hidden truncate text-[11px] text-muted-foreground md:inline">
+          · Phaeron Internal Management System
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="hidden items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground sm:inline-flex">
+          <span className="live-pulse h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          Live · Managing fleet
+        </span>
+        <ThemeToggle />
+        <button
+          type="button"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground"
+          title="Refresh"
+          onClick={() => window.location.reload()}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      <nav className="flex max-w-[45vw] gap-1 overflow-x-auto lg:hidden">
+        {Object.entries(TITLES).map(([href, label]) => {
+          const active =
+            href === "/" ? pathname === "/" : pathname.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "whitespace-nowrap rounded-lg px-2 py-1 text-[10px] font-semibold uppercase tracking-wide",
+                active
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-card text-muted-foreground"
+              )}
+            >
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
+    </header>
   );
 }

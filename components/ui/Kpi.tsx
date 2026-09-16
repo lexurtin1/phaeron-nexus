@@ -45,15 +45,15 @@ export function SectionHeader({
     >
       <div>
         {eyebrow && (
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-text-muted)]">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             {eyebrow}
           </p>
         )}
-        <h2 className="font-display text-[28px] leading-tight text-[var(--color-navy-deep)]">
+        <h2 className="font-display text-[28px] leading-tight text-foreground">
           {title}
         </h2>
         {description && (
-          <p className="mt-1 max-w-xl text-[13px] text-[var(--color-text-secondary)]">
+          <p className="mt-1 max-w-xl text-[13px] text-muted-foreground">
             {description}
           </p>
         )}
@@ -80,7 +80,7 @@ export function KpiTile({
 }) {
   return (
     <div className="glass-panel p-3.5">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {label}
       </p>
       <p
@@ -89,19 +89,19 @@ export function KpiTile({
           tone === "critical" && "text-[var(--color-critical)]",
           tone === "healthy" && "text-[var(--color-healthy)]",
           !tone || tone === "default"
-            ? "text-[var(--color-navy-deep)]"
+            ? "text-foreground"
             : undefined
         )}
       >
         <AnimatedNumber value={value} format={format} />
         {suffix && (
-          <span className="ml-0.5 text-[16px] text-[var(--color-text-muted)]">
+          <span className="ml-0.5 text-[16px] text-muted-foreground">
             {suffix}
           </span>
         )}
       </p>
       {hint && (
-        <p className="mt-1.5 text-[11px] text-[var(--color-text-faint)]">
+        <p className="mt-1.5 text-[11px] text-muted-foreground">
           {hint}
         </p>
       )}
@@ -116,7 +116,7 @@ export function Input({
   return (
     <input
       className={cn(
-        "h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-faint)] focus:border-[var(--color-navy-accent)] focus:ring-2 focus:ring-[var(--color-navy-glow)]",
+        "h-9 w-full rounded-lg border border-border bg-card px-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground focus:border-[var(--color-navy-accent)] focus:ring-2 focus:ring-[var(--color-navy-glow)]",
         className
       )}
       {...props}

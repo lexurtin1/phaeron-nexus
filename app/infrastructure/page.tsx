@@ -24,22 +24,22 @@ function ClusterDrawer({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md border-l border-[#e2e8f0] bg-white p-5 shadow-[-8px_0_40px_rgba(10,22,40,0.08)] backdrop-blur">
+    <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md border-l border-border bg-card p-5 shadow-[-8px_0_40px_rgba(10,22,40,0.08)] backdrop-blur">
       <div className="mb-4 flex items-start justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Cluster detail
           </p>
-          <h2 className="font-display text-[28px] text-[var(--color-navy-deep)]">
+          <h2 className="font-display text-[28px] text-foreground">
             {cluster.name}
           </h2>
-          <p className="text-[12px] text-[var(--color-text-muted)]">
+          <p className="text-[12px] text-muted-foreground">
             {cluster.clientName} · {cluster.region}
           </p>
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg px-2 py-1 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[#f4f6f9]"
+          className="rounded-lg px-2 py-1 text-[12px] font-semibold text-muted-foreground hover:bg-muted/60"
         >
           Close
         </button>
@@ -49,26 +49,26 @@ function ClusterDrawer({
         <Tag>{cluster.nodeCount} nodes</Tag>
         <Tag>Uptime {formatPercent(cluster.uptime)}</Tag>
       </div>
-      <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+      <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         Services
       </h3>
       <ul className="space-y-2">
         {cluster.services.map((s) => (
           <li
             key={s.id}
-            className="flex items-center justify-between rounded-lg bg-[#f4f6f9] px-3 py-2"
+            className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-2"
           >
             <div className="flex items-center gap-2">
               <HealthDot status={s.status} />
               <span className="text-[13px] font-semibold">{s.name}</span>
             </div>
-            <span className="text-[11px] text-[var(--color-text-muted)]">
+            <span className="text-[11px] text-muted-foreground">
               {s.ready}/{s.replicas} · CPU {s.cpu}% · Mem {s.memory}%
             </span>
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-[12px] text-[var(--color-text-muted)]">
+      <p className="mt-4 text-[12px] text-muted-foreground">
         Last rollout {relativeTime(cluster.lastRollout)} · CPU {cluster.cpuUtil}%
         · Memory {cluster.memUtil}%
       </p>
@@ -94,26 +94,26 @@ export default function InfrastructurePage() {
             {regions.map((r) => (
               <Card key={r.region}>
                 <div className="flex items-center justify-between">
-                  <h3 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+                  <h3 className="font-display text-[22px] text-foreground">
                     {r.region}
                   </h3>
                   <HealthDot status={r.health} />
                 </div>
                 <dl className="mt-3 space-y-1 text-[12px]">
                   <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-muted)]">Clusters</dt>
+                    <dt className="text-muted-foreground">Clusters</dt>
                     <dd className="font-semibold">{r.totalClusters}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-muted)]">Healthy pods</dt>
+                    <dt className="text-muted-foreground">Healthy pods</dt>
                     <dd className="font-semibold">{r.healthyPods}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-muted)]">Degraded</dt>
+                    <dt className="text-muted-foreground">Degraded</dt>
                     <dd className="font-semibold">{r.degradedPods}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-[var(--color-text-muted)]">Alerts</dt>
+                    <dt className="text-muted-foreground">Alerts</dt>
                     <dd className="font-semibold">{r.activeAlerts}</dd>
                   </div>
                 </dl>
@@ -122,7 +122,7 @@ export default function InfrastructurePage() {
           </div>
 
           <div>
-            <h2 className="mb-3 font-display text-[24px] text-[var(--color-navy-deep)]">
+            <h2 className="mb-3 font-display text-[24px] text-foreground">
               Clusters
             </h2>
             <div className="grid gap-3 md:grid-cols-2">
@@ -136,10 +136,10 @@ export default function InfrastructurePage() {
                   <Card className="h-full transition-shadow hover:shadow-[0_8px_28px_rgba(10,22,40,0.08)]">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-mono text-[13px] font-semibold text-[var(--color-navy-deep)]">
+                        <p className="font-mono text-[13px] font-semibold text-foreground">
                           {c.name}
                         </p>
-                        <p className="mt-0.5 text-[12px] text-[var(--color-text-muted)]">
+                        <p className="mt-0.5 text-[12px] text-muted-foreground">
                           {c.clientName} · {c.region}
                         </p>
                       </div>
@@ -162,7 +162,7 @@ export default function InfrastructurePage() {
                         Pods {c.podsHealthy}/{c.podsHealthy + c.podsPending + c.podsFailed}
                       </Tag>
                     </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-[var(--color-text-muted)]">
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
                       <span>CPU {c.cpuUtil}%</span>
                       <span>Mem {c.memUtil}%</span>
                       <span>Uptime {formatPercent(c.uptime)}</span>
@@ -175,21 +175,21 @@ export default function InfrastructurePage() {
           </div>
 
           <Card>
-            <h2 className="font-display text-[22px] text-[var(--color-navy-deep)]">
+            <h2 className="font-display text-[22px] text-foreground">
               Rollout Tracker
             </h2>
             <ul className="mt-3 space-y-3">
               {rollouts.map((r) => (
                 <li
                   key={r.id}
-                  className="rounded-lg border border-[#e2e8f0] bg-[#f4f6f9] p-3"
+                  className="rounded-lg border border-border bg-muted/60 p-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-[13px] font-semibold text-[var(--color-navy-deep)]">
+                      <p className="text-[13px] font-semibold text-foreground">
                         {r.name}
                       </p>
-                      <p className="text-[12px] text-[var(--color-text-muted)]">
+                      <p className="text-[12px] text-muted-foreground">
                         {r.fromVersion} → {r.toVersion} · {r.targetClients.join(", ")}
                       </p>
                     </div>
@@ -205,13 +205,13 @@ export default function InfrastructurePage() {
                       {r.status.replace("_", " ")}
                     </Badge>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#eef2f7]">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full rounded-full bg-[var(--color-navy-accent)]"
                       style={{ width: `${r.progress}%` }}
                     />
                   </div>
-                  <p className="mt-1 text-[11px] text-[var(--color-text-faint)]">
+                  <p className="mt-1 text-[11px] text-muted-foreground">
                     {r.progress}% · started {relativeTime(r.startedAt)}
                   </p>
                 </li>
@@ -222,7 +222,7 @@ export default function InfrastructurePage() {
 
         <aside>
           <Card className="sticky top-[88px]" elevated>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Open Incidents
             </p>
             <ul className="mt-3 space-y-3">
@@ -235,10 +235,10 @@ export default function InfrastructurePage() {
                 .map((i) => (
                   <li
                     key={i.id}
-                    className="rounded-lg border border-[#e2e8f0] bg-[#f4f6f9] p-3"
+                    className="rounded-lg border border-border bg-muted/60 p-3"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-[13px] font-semibold leading-snug text-[var(--color-navy-deep)]">
+                      <p className="text-[13px] font-semibold leading-snug text-foreground">
                         {i.title}
                       </p>
                       <Badge
@@ -251,13 +251,13 @@ export default function InfrastructurePage() {
                         {i.severity}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
+                    <p className="mt-1 text-[11px] text-muted-foreground">
                       {i.clientName} · {i.component}
                     </p>
-                    <p className="mt-1 text-[12px] text-[var(--color-text-secondary)]">
+                    <p className="mt-1 text-[12px] text-muted-foreground">
                       {i.impact}
                     </p>
-                    <p className="mt-2 text-[10px] uppercase tracking-[0.08em] text-[var(--color-text-faint)]">
+                    <p className="mt-2 text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
                       {i.owner} · {i.status} · {relativeTime(i.openedAt)}
                     </p>
                   </li>

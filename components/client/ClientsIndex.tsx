@@ -52,7 +52,7 @@ export function ClientsIndex() {
         <select
           value={region}
           onChange={(e) => setRegion(e.target.value as Region | "all")}
-          className="h-9 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[12px] font-medium text-[#0a1628]"
+          className="h-9 rounded-lg border border-border bg-card px-3 text-[12px] font-medium text-foreground"
         >
           <option value="all">All regions</option>
           <option value="EMEA">EMEA</option>
@@ -62,14 +62,14 @@ export function ClientsIndex() {
         <select
           value={health}
           onChange={(e) => setHealth(e.target.value as HealthStatus | "all")}
-          className="h-9 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[12px] font-medium text-[#0a1628]"
+          className="h-9 rounded-lg border border-border bg-card px-3 text-[12px] font-medium text-foreground"
         >
           <option value="all">All health</option>
           <option value="healthy">Healthy</option>
           <option value="warning">Degraded</option>
           <option value="critical">Critical</option>
         </select>
-        <span className="text-[12px] text-[var(--color-text-muted)]">
+        <span className="text-[12px] text-muted-foreground">
           {filtered.length} accounts
         </span>
       </div>
@@ -81,7 +81,7 @@ export function ClientsIndex() {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <HealthDot status={c.health} />
-                  <h3 className="font-display text-[22px] leading-tight text-[var(--color-navy-deep)]">
+                  <h3 className="font-display text-[22px] leading-tight text-foreground">
                     {c.name}
                   </h3>
                 </div>
@@ -97,7 +97,7 @@ export function ClientsIndex() {
                   {healthLabel(c.health)}
                 </Badge>
               </div>
-              <p className="mt-1 text-[12px] text-[var(--color-text-muted)]">
+              <p className="mt-1 text-[12px] text-muted-foreground">
                 {c.industry} · {c.city}, {c.country}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
@@ -105,11 +105,11 @@ export function ClientsIndex() {
                 <Tag>{c.region}</Tag>
                 <Tag>Eval {c.evaluationScore.toFixed(1)}</Tag>
               </div>
-              <div className="mt-4 flex justify-between border-t border-[rgba(10,22,40,0.06)] pt-3 text-[12px]">
-                <span className="text-[var(--color-text-muted)]">
+              <div className="mt-4 flex justify-between border-t border-border pt-3 text-[12px]">
+                <span className="text-muted-foreground">
                   Uptime {formatPercent(c.uptime)}
                 </span>
-                <span className="font-semibold text-[var(--color-navy-deep)]">
+                <span className="font-semibold text-foreground">
                   {c.arr > 0 ? formatCurrency(c.arr, true) : "Pipeline"}
                 </span>
               </div>

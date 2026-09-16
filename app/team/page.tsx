@@ -52,17 +52,17 @@ export default function TeamPage() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card elevated className="lg:min-h-[520px]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Attention Required
           </p>
           <ul className="mt-3 space-y-3">
             {attention.map((item) => (
               <li
                 key={item.id}
-                className="rounded-lg border border-[rgba(10,22,40,0.06)] bg-[rgba(10,22,40,0.02)] p-3"
+                className="rounded-lg border border-border bg-muted/40 p-3"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-[13px] font-semibold text-[var(--color-navy-deep)]">
+                  <p className="text-[13px] font-semibold text-foreground">
                     {item.title}
                   </p>
                   <Badge
@@ -77,10 +77,10 @@ export default function TeamPage() {
                     {item.priority}
                   </Badge>
                 </div>
-                <p className="mt-1 text-[12px] text-[var(--color-text-secondary)]">
+                <p className="mt-1 text-[12px] text-muted-foreground">
                   {item.context}
                 </p>
-                <p className="mt-1 text-[11px] text-[var(--color-text-faint)]">
+                <p className="mt-1 text-[11px] text-muted-foreground">
                   {item.raisedBy}
                   {item.clientName ? ` · ${item.clientName}` : ""} ·{" "}
                   {relativeTime(item.createdAt)}
@@ -112,7 +112,7 @@ export default function TeamPage() {
               </li>
             ))}
             {attention.length === 0 && (
-              <p className="py-8 text-center text-[13px] text-[var(--color-text-muted)]">
+              <p className="py-8 text-center text-[13px] text-muted-foreground">
                 Nothing escalated. The network is quiet — stay ready.
               </p>
             )}
@@ -121,7 +121,7 @@ export default function TeamPage() {
 
         <Card className="lg:min-h-[520px]">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               My Actions
             </p>
             <div className="flex gap-2">
@@ -130,7 +130,7 @@ export default function TeamPage() {
                 onChange={(e) =>
                   setModuleFilter(e.target.value as TaskModule | "all")
                 }
-                className="h-7 rounded-md border border-[rgba(10,22,40,0.1)] bg-white px-2 text-[10px] font-semibold uppercase"
+                className="h-7 rounded-md border border-[rgba(10,22,40,0.1)] bg-card px-2 text-[10px] font-semibold uppercase"
               >
                 <option value="all">All modules</option>
                 <option value="commercial">Commercial</option>
@@ -144,7 +144,7 @@ export default function TeamPage() {
                 onChange={(e) =>
                   setPriorityFilter(e.target.value as TaskPriority | "all")
                 }
-                className="h-7 rounded-md border border-[rgba(10,22,40,0.1)] bg-white px-2 text-[10px] font-semibold uppercase"
+                className="h-7 rounded-md border border-[rgba(10,22,40,0.1)] bg-card px-2 text-[10px] font-semibold uppercase"
               >
                 <option value="all">All priority</option>
                 <option value="critical">Critical</option>
@@ -158,10 +158,10 @@ export default function TeamPage() {
             {myActions.map((t) => (
               <li
                 key={t.id}
-                className="rounded-lg border border-[rgba(10,22,40,0.06)] p-3"
+                className="rounded-lg border border-border p-3"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-[13px] font-semibold text-[var(--color-navy-deep)]">
+                  <p className="text-[13px] font-semibold text-foreground">
                     {t.title}
                   </p>
                   <Badge
@@ -176,7 +176,7 @@ export default function TeamPage() {
                     {t.priority}
                   </Badge>
                 </div>
-                <p className="mt-1 text-[12px] text-[var(--color-text-secondary)]">
+                <p className="mt-1 text-[12px] text-muted-foreground">
                   {t.description}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -203,7 +203,7 @@ export default function TeamPage() {
               </li>
             ))}
             {myActions.length === 0 && (
-              <p className="py-8 text-center text-[13px] text-[var(--color-text-muted)]">
+              <p className="py-8 text-center text-[13px] text-muted-foreground">
                 You&apos;re clear. Pick something from Attention Required when
                 ready.
               </p>
@@ -212,7 +212,7 @@ export default function TeamPage() {
         </Card>
 
         <Card className="lg:min-h-[520px]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Team Activity
           </p>
           <ul className="mt-3 space-y-0">
@@ -221,14 +221,14 @@ export default function TeamPage() {
                 key={a.id}
                 className="border-b border-[rgba(10,22,40,0.05)] py-3 last:border-0"
               >
-                <p className="text-[13px] text-[var(--color-text)]">
-                  <span className="font-semibold text-[var(--color-navy-deep)]">
+                <p className="text-[13px] text-foreground">
+                  <span className="font-semibold text-foreground">
                     {a.memberName}
                   </span>{" "}
                   {a.action.toLowerCase()}{" "}
                   <span className="font-medium">{a.target}</span>
                 </p>
-                <p className="mt-0.5 text-[11px] text-[var(--color-text-faint)]">
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
                   {relativeTime(a.timestamp)}
                 </p>
               </li>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import { Sidebar, DashboardHeader } from "@/components/layout/Sidebar";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
 const openSans = Open_Sans({
@@ -23,18 +24,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={openSans.variable}>
+    <html lang="en" className={openSans.variable} suppressHydrationWarning>
       <body className={openSans.className}>
-        <div className="min-h-screen bg-[#f4f6f9] text-[#0a1628]">
-          <div className="nexus-atmosphere" />
-          <div className="relative z-10 flex min-h-screen">
-            <Sidebar />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <DashboardHeader />
-              <main className="flex-1 p-4 md:p-6">{children}</main>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            <div className="min-h-screen bg-background text-foreground">
+              <div className="relative z-10 flex min-h-screen">
+                <Sidebar />
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <DashboardHeader />
+                  <main className="flex-1 p-4 md:p-6">{children}</main>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
