@@ -24,7 +24,7 @@ function ClusterDrawer({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md border-l border-white/10 bg-[#171c2b]/96 p-5 shadow-[-8px_0_40px_rgba(0,0,0,0.45)] backdrop-blur">
+    <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md border-l border-[#e2e8f0] bg-white p-5 shadow-[-8px_0_40px_rgba(10,22,40,0.08)] backdrop-blur">
       <div className="mb-4 flex items-start justify-between">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">
@@ -39,7 +39,7 @@ function ClusterDrawer({
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg px-2 py-1 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-white/5"
+          className="rounded-lg px-2 py-1 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[#f4f6f9]"
         >
           Close
         </button>
@@ -56,7 +56,7 @@ function ClusterDrawer({
         {cluster.services.map((s) => (
           <li
             key={s.id}
-            className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2"
+            className="flex items-center justify-between rounded-lg bg-[#f4f6f9] px-3 py-2"
           >
             <div className="flex items-center gap-2">
               <HealthDot status={s.status} />
@@ -182,7 +182,7 @@ export default function InfrastructurePage() {
               {rollouts.map((r) => (
                 <li
                   key={r.id}
-                  className="rounded-lg border border-white/10 bg-white/5 p-3"
+                  className="rounded-lg border border-[#e2e8f0] bg-[#f4f6f9] p-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -205,7 +205,7 @@ export default function InfrastructurePage() {
                       {r.status.replace("_", " ")}
                     </Badge>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#eef2f7]">
                     <div
                       className="h-full rounded-full bg-[var(--color-navy-accent)]"
                       style={{ width: `${r.progress}%` }}
@@ -235,7 +235,7 @@ export default function InfrastructurePage() {
                 .map((i) => (
                   <li
                     key={i.id}
-                    className="rounded-lg border border-white/10 bg-white/5 p-3"
+                    className="rounded-lg border border-[#e2e8f0] bg-[#f4f6f9] p-3"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-[13px] font-semibold leading-snug text-[var(--color-navy-deep)]">

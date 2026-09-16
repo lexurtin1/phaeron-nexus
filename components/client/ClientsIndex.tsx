@@ -52,7 +52,7 @@ export function ClientsIndex() {
         <select
           value={region}
           onChange={(e) => setRegion(e.target.value as Region | "all")}
-          className="h-9 rounded-lg border border-white/10 bg-[#0b0f19]/80 px-3 text-[12px] font-medium text-slate-100"
+          className="h-9 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[12px] font-medium text-[#0a1628]"
         >
           <option value="all">All regions</option>
           <option value="EMEA">EMEA</option>
@@ -62,7 +62,7 @@ export function ClientsIndex() {
         <select
           value={health}
           onChange={(e) => setHealth(e.target.value as HealthStatus | "all")}
-          className="h-9 rounded-lg border border-white/10 bg-[#0b0f19]/80 px-3 text-[12px] font-medium text-slate-100"
+          className="h-9 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[12px] font-medium text-[#0a1628]"
         >
           <option value="all">All health</option>
           <option value="healthy">Healthy</option>

@@ -43,17 +43,17 @@ export function Sidebar() {
         : "bg-amber-500";
 
   return (
-    <aside className="hidden lg:flex w-64 h-screen sticky top-0 flex-col border-r border-white/10 bg-[#0f1420]/95 backdrop-blur-md">
-      <div className="flex items-start gap-3 p-6 border-b border-white/10">
+    <aside className="hidden lg:flex w-64 h-screen sticky top-0 flex-col border-r border-[#e2e8f0] bg-white/95 backdrop-blur-md">
+      <div className="flex items-start gap-3 p-6 border-b border-[#e2e8f0]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/assets/phaeron-logo.png"
           alt="Phaeron"
-          className="h-11 w-11 rounded-xl object-contain bg-[#171c2b] p-1"
+          className="h-11 w-11 rounded-xl object-contain bg-[#f4f6f9] p-1"
         />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="font-bold text-xl leading-tight text-slate-50">
+            <h1 className="font-bold text-xl leading-tight text-[#0a1628]">
               NEXUS
             </h1>
             <span className="relative inline-flex h-2.5 w-2.5" title="Fleet status">
@@ -71,10 +71,10 @@ export function Sidebar() {
               />
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 leading-snug mt-0.5">
+          <p className="text-[11px] text-[#64748b] leading-snug mt-0.5">
             Internal Management System
           </p>
-          <p className="text-[10px] text-slate-500 leading-snug">
+          <p className="text-[10px] text-[#94a3b8] leading-snug">
             Clients · Fleet · Revenue · GraphRAG
           </p>
         </div>
@@ -94,8 +94,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 active
-                  ? "bg-[#818cf8] text-[#0b0f19] shadow-sm"
-                  : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
+                  ? "bg-[#0a1628] text-white shadow-sm"
+                  : "text-[#64748b] hover:bg-[#f4f6f9] hover:text-[#0a1628]"
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -105,14 +105,14 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-white/10 space-y-2">
-        <div className="flex items-center gap-2 rounded-xl bg-[#171c2b] px-3 py-2.5">
-          <Activity className="h-4 w-4 text-[#7b61ff]" />
+      <div className="p-4 border-t border-[#e2e8f0] space-y-2">
+        <div className="flex items-center gap-2 rounded-xl bg-[#f4f6f9] px-3 py-2.5">
+          <Activity className="h-4 w-4 text-[#e11d48]" />
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">
               Fleet integrity
             </p>
-            <p className="text-sm font-semibold text-slate-100 tabular-nums">
+            <p className="text-sm font-semibold text-[#0a1628] tabular-nums">
               {kpis.fleetUptime.toFixed(2)}% · {kpis.openIncidents} incidents
             </p>
           </div>
@@ -122,13 +122,13 @@ export function Sidebar() {
           <img
             src="/assets/headshot.png"
             alt=""
-            className="h-8 w-8 rounded-full border border-white/10 object-cover"
+            className="h-8 w-8 rounded-full border border-[#e2e8f0] object-cover"
           />
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-100 truncate">
+            <p className="text-sm font-semibold text-[#0a1628] truncate">
               Alex Curtin
             </p>
-            <p className="text-[11px] text-slate-400">Commercial · EMEA</p>
+            <p className="text-[11px] text-[#64748b]">Commercial · EMEA</p>
           </div>
         </div>
       </div>

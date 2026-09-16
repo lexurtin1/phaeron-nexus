@@ -32,7 +32,7 @@ export function Badge({
     healthy: "bg-[var(--color-healthy-glow)] text-[var(--color-healthy)]",
     warning: "bg-[var(--color-warning-glow)] text-[var(--color-warning)]",
     critical: "bg-[var(--color-critical-glow)] text-[var(--color-critical)]",
-    muted: "bg-white/5 text-[var(--color-text-muted)]",
+    muted: "bg-[#f4f6f9] text-[var(--color-text-muted)]",
   };
   return (
     <span
@@ -57,7 +57,7 @@ export function Tag({
   return (
     <span
       className={cn(
-        "inline-flex rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-medium text-[var(--color-text-secondary)]",
+        "inline-flex rounded-md border border-[#e2e8f0] bg-[#f4f6f9] px-2 py-0.5 text-[11px] font-medium text-[var(--color-text-secondary)]",
         className
       )}
     >
@@ -69,7 +69,7 @@ export function Tag({
 export function Divider({ className }: { className?: string }) {
   return (
     <div
-      className={cn("h-px w-full bg-white/10", className)}
+      className={cn("h-px w-full bg-[#e2e8f0]", className)}
       role="separator"
     />
   );

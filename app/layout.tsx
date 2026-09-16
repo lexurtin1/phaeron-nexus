@@ -23,9 +23,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${openSans.variable}`}>
+    <html lang="en" className={openSans.variable}>
       <body className={openSans.className}>
-        <div className="min-h-screen bg-[#0b0f19] text-slate-100">
+        <div className="min-h-screen bg-[#f4f6f9] text-[#0a1628]">
           <div className="nexus-atmosphere" />
           <div className="relative z-10 flex min-h-screen">
             <Sidebar />

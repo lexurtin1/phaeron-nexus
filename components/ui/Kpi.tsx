@@ -116,7 +116,7 @@ export function Input({
   return (
     <input
       className={cn(
-        "h-9 w-full rounded-lg border border-white/10 bg-[#0b0f19]/80 px-3 text-[13px] text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-faint)] focus:border-[var(--color-navy-accent)] focus:ring-2 focus:ring-[var(--color-navy-glow)]",
+        "h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-faint)] focus:border-[var(--color-navy-accent)] focus:ring-2 focus:ring-[var(--color-navy-glow)]",
         className
       )}
       {...props}

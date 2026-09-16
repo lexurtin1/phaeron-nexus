@@ -28,9 +28,9 @@ const COUNTRY_NAME_MAPPING: Record<string, string> = {
 };
 
 const MAP_THEME = {
-  noData: "#1e2536",
-  stroke: "rgba(148, 163, 184, 0.18)",
-  scale: ["#312e81", "#4f46e5", "#818cf8", "#c7d2fe"],
+  noData: "#e8eef5",
+  stroke: "rgba(10, 22, 40, 0.12)",
+  scale: ["#c5d0e0", "#2a4060", "#0a1628", "#e11d48"],
 };
 
 type RegionStat = {
@@ -123,19 +123,19 @@ export function RegionalTrafficMap({ compact = false }: { compact?: boolean }) {
     .slice(0, 5);
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-white/10 bg-[#171c2b]/90 p-4 shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+    <div className="flex h-full flex-col rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-100">
-          <Globe className="h-4 w-4 text-[#818cf8]" />
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-[#0a1628]">
+          <Globe className="h-4 w-4 text-[#0a1628]" />
           Global deployment traffic
         </h3>
-        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">
           Management map
         </span>
       </div>
 
       <div
-        className={`relative w-full overflow-hidden rounded-lg bg-[#0b0f19] ${
+        className={`relative w-full overflow-hidden rounded-lg bg-[#f4f6f9] ${
           compact ? "aspect-[4/3] min-h-[280px] flex-1" : "aspect-[2/1]"
         }`}
       >
@@ -159,7 +159,7 @@ export function RegionalTrafficMap({ compact = false }: { compact?: boolean }) {
                       hover: {
                         fill:
                           hovered === geo.properties.name
-                            ? "#f59e0b"
+                            ? "#e11d48"
                             : undefined,
                         outline: "none",
                         cursor: "pointer",
@@ -194,26 +194,26 @@ export function RegionalTrafficMap({ compact = false }: { compact?: boolean }) {
         </ComposableMap>
 
         {tooltip && (
-          <div className="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2 rounded-lg border border-white/10 bg-[#171c2b]/95 px-3 py-2 shadow-lg">
-            <p className="text-sm font-semibold text-slate-100">
+          <div className="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2 rounded-lg border border-[#e2e8f0] bg-white/95 px-3 py-2 shadow-lg">
+            <p className="text-sm font-semibold text-[#0a1628]">
               {tooltip.name}
             </p>
-            <div className="mt-1 space-y-0.5 text-[11px] text-slate-300">
+            <div className="mt-1 space-y-0.5 text-[11px] text-[#64748b]">
               <p>
                 Deployments:{" "}
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-[#0a1628]">
                   {tooltip.deployments}
                 </span>
               </p>
               <p>
                 API 24h:{" "}
-                <span className="font-semibold text-[#818cf8]">
+                <span className="font-semibold text-[#0a1628]">
                   {formatNumber(tooltip.apiCalls)}
                 </span>
               </p>
               <p>
                 Uptime:{" "}
-                <span className="font-semibold text-[#00d084]">
+                <span className="font-semibold text-[#059669]">
                   {tooltip.uptime.toFixed(2)}%
                 </span>
               </p>
@@ -221,14 +221,14 @@ export function RegionalTrafficMap({ compact = false }: { compact?: boolean }) {
           </div>
         )}
 
-        <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-[#0b0f19]/85 px-2 py-1 text-[10px] text-slate-400">
+        <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-white/90 px-2 py-1 text-[10px] text-[#64748b] shadow-sm">
           <Info className="h-3 w-3" />
           Hover a country for deployment load
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-[10px] text-slate-400">
+        <div className="flex items-center gap-2 text-[10px] text-[#64748b]">
           <span>Traffic</span>
           <div
             className="h-2 w-24 rounded-full"
@@ -238,11 +238,11 @@ export function RegionalTrafficMap({ compact = false }: { compact?: boolean }) {
           />
           <span>High</span>
         </div>
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-300">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[#334155]">
           {top.map((r) => (
             <span key={r.country}>
-              <span className="text-slate-400">{r.countryName.split(" ")[0]}</span>{" "}
-              <span className="font-semibold text-white">
+              <span className="text-[#64748b]">{r.countryName.split(" ")[0]}</span>{" "}
+              <span className="font-semibold text-[#0a1628]">
                 {formatNumber(r.apiCalls)}
               </span>
             </span>

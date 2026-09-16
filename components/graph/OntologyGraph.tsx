@@ -109,7 +109,7 @@ export function OntologyGraph() {
     const sigma = new Sigma(graph, containerRef.current, {
       allowInvalidContainer: true,
       renderEdgeLabels: false,
-      labelColor: { color: "#e2e8f0" },
+      labelColor: { color: "#0a1628" },
       labelSize: 11,
       labelFont: "Open Sans, sans-serif",
       defaultEdgeColor: "rgba(0,99,255,0.25)",
@@ -146,14 +146,14 @@ export function OntologyGraph() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-white/10 bg-[#171c2b]/90 p-4 shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+      <div className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-400">
+            <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[#64748b]">
               <Network className="h-4 w-4 text-[#7b61ff]" />
               Funds Industry GraphRAG
             </p>
-            <p className="mt-1 max-w-2xl text-[13px] text-slate-400">
+            <p className="mt-1 max-w-2xl text-[13px] text-[#64748b]">
               Who sells, distributes, administers, and settles with whom — unified
               through Phaeron&apos;s master ontology so every Pulse claim retrieves
               the same industry meaning.
@@ -183,15 +183,15 @@ export function OntologyGraph() {
                 }
                 className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${
                   on
-                    ? "bg-[#818cf8] text-white"
-                    : "bg-white/10 text-slate-400"
+                    ? "bg-[#0a1628] text-white"
+                    : "bg-[#eef2f7] text-[#64748b]"
                 }`}
               >
                 {r.label}
               </button>
             );
           })}
-          <label className="ml-auto flex items-center gap-2 text-[11px] font-semibold text-slate-400">
+          <label className="ml-auto flex items-center gap-2 text-[11px] font-semibold text-[#64748b]">
             Min strength
             <input
               type="range"
@@ -208,36 +208,36 @@ export function OntologyGraph() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="relative min-h-[520px] overflow-hidden rounded-xl border border-white/10 bg-[#171c2b]/90 shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+        <div className="relative min-h-[520px] overflow-hidden rounded-xl border border-[#e2e8f0] bg-white shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
           <div ref={containerRef} className="absolute inset-0" />
         </div>
-        <aside className="rounded-xl border border-white/10 bg-[#171c2b]/90 p-4 shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+        <aside className="rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-[0_1px_2px_rgba(10,22,40,0.04)]">
           {selected ? (
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-2">
-                <h2 className="text-xl font-bold text-slate-100">
+                <h2 className="text-xl font-bold text-[#0a1628]">
                   {selected.label}
                 </h2>
                 <Badge tone="purple">{selected.type.replace("_", " ")}</Badge>
               </div>
-              <p className="text-[13px] text-slate-400">{selected.description}</p>
+              <p className="text-[13px] text-[#64748b]">{selected.description}</p>
               <div className="flex flex-wrap gap-1.5">
                 {selected.version && <Tag>v{selected.version}</Tag>}
                 <Tag>{selected.relationshipCount} links</Tag>
               </div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748b]">
                 Counterparties
               </p>
               <ul className="space-y-2">
                 {counterparties.map(({ edge, other }) => (
                   <li
                     key={edge.id}
-                    className="rounded-lg bg-[#0b0f19]/60 px-3 py-2 text-[12px]"
+                    className="rounded-lg bg-[#f4f6f9] px-3 py-2 text-[12px]"
                   >
-                    <span className="font-semibold text-[#818cf8]">
+                    <span className="font-semibold text-[#0a1628]">
                       {edge.label}
                     </span>{" "}
-                    <span className="text-slate-100">{other?.label}</span>
+                    <span className="text-[#0a1628]">{other?.label}</span>
                     <span className="text-[#94a3b8]">
                       {" "}
                       · {(edge.weight * 100).toFixed(0)}%
@@ -248,10 +248,10 @@ export function OntologyGraph() {
             </div>
           ) : (
             <div>
-              <p className="text-sm font-semibold text-slate-100">
+              <p className="text-sm font-semibold text-[#0a1628]">
                 Select a node
               </p>
-              <p className="mt-2 text-[13px] text-slate-400">
+              <p className="mt-2 text-[13px] text-[#64748b]">
                 Purple platforms, navy custodians, amber distributors, pink
                 channels — edges show sells_to, distributes_via,
                 administers_for, settles_through.
