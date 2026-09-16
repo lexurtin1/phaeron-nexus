@@ -135,11 +135,12 @@ export function Sidebar() {
               Fleet integrity
             </p>
             <p className="tabular-nums text-sm font-semibold">
-              {kpis.fleetUptime.toFixed(2)}% · {kpis.openIncidents} incidents
+              {Number(kpis.fleetUptime ?? 0).toFixed(2)}% ·{" "}
+              {kpis.openIncidents ?? 0} incidents
             </p>
             <p className="tabular-nums text-[11px] text-muted-foreground">
-              {formatNumber(kpis.fleetRps ?? 0)} rps · P95{" "}
-              {(kpis.fleetP95 ?? 0).toFixed(0)}ms
+              {formatNumber(Number(kpis.fleetRps ?? 0))} rps · P95{" "}
+              {Number(kpis.fleetP95 ?? 0).toFixed(0)}ms
             </p>
           </div>
         </div>

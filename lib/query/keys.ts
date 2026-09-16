@@ -61,6 +61,8 @@ export const queryKeys = {
 
 export async function fetchSnapshot(): Promise<SnapshotBundle> {
   const res = await fetch("/api/snapshot", { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to load nexus snapshot");
+  if (!res.ok) {
+    throw new Error(`Failed to load nexus snapshot (${res.status})`);
+  }
   return res.json();
 }

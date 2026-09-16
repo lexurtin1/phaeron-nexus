@@ -12,13 +12,15 @@ export type NexusDb =
 
 declare global {
   // eslint-disable-next-line no-var
-  var __nexusDb: NexusDb | undefined;
+  var __nexusDb: NexusDb | null | undefined;
   // eslint-disable-next-line no-var
-  var __nexusDbReady: Promise<NexusDb> | undefined;
+  var __nexusDbReady: Promise<NexusDb | null> | undefined;
   // eslint-disable-next-line no-var
   var __nexusPgClient: ReturnType<typeof postgres> | undefined;
   // eslint-disable-next-line no-var
   var __nexusPglite: PGlite | undefined;
+  // eslint-disable-next-line no-var
+  var __nexusDbDisabled: boolean | undefined;
 }
 
 export const DDL = `
@@ -144,7 +146,17 @@ DROP TABLE IF EXISTS opportunities CASCADE;
 DROP TABLE IF EXISTS organisations CASCADE;
 `;
 
+/** On Vercel without DATABASE_URL, skip embedded PGlite (no durable FS). */
+export function isDurableDbEnabled(): boolean {
+  if (globalThis.__nexusDbDisabled) return false;
+  if (process.env.DATABASE_URL) return true;
+  if (process.env.VERCEL) return false;
+  if (process.env.NEXUS_MEMORY_ONLY === "1") return false;
+  return true;
+}
+
 export async function resetSchema(): Promise<void> {
+  if (!isDurableDbEnabled()) return;
   if (globalThis.__nexusPglite) {
     await globalThis.__nexusPglite.exec(DROP_DDL);
     await globalThis.__nexusPglite.exec(DDL);
@@ -184,14 +196,23 @@ async function createPostgresDb(url: string): Promise<NexusDb> {
   return drizzlePostgres(sql, { schema });
 }
 
-export async function getDb(): Promise<NexusDb> {
+export async function getDb(): Promise<NexusDb | null> {
+  if (!isDurableDbEnabled()) return null;
+  if (globalThis.__nexusDb === null) return null;
   if (globalThis.__nexusDb) return globalThis.__nexusDb;
   if (!globalThis.__nexusDbReady) {
     globalThis.__nexusDbReady = (async () => {
-      const url = process.env.DATABASE_URL;
-      const db = url ? await createPostgresDb(url) : await createPgliteDb();
-      globalThis.__nexusDb = db;
-      return db;
+      try {
+        const url = process.env.DATABASE_URL;
+        const db = url ? await createPostgresDb(url) : await createPgliteDb();
+        globalThis.__nexusDb = db;
+        return db;
+      } catch (err) {
+        console.warn("[nexus] durable DB unavailable; memory-only mode", err);
+        globalThis.__nexusDbDisabled = true;
+        globalThis.__nexusDb = null;
+        return null;
+      }
     })();
   }
   return globalThis.__nexusDbReady;

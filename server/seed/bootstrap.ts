@@ -154,6 +154,7 @@ export function buildWorldFromMocks(): WorldState {
 
 async function persistWorld(world: WorldState): Promise<void> {
   const db = await getDb();
+  if (!db) return;
   const { resetSchema } = await import("@/server/db/client");
   await resetSchema();
 
@@ -268,6 +269,7 @@ async function persistWorld(world: WorldState): Promise<void> {
 
 async function hydrateDurableFromDb(world: WorldState): Promise<boolean> {
   const db = await getDb();
+  if (!db) return false;
   const existingTasks = await db.select().from(schema.tasks);
   if (existingTasks.length === 0) return false;
 
@@ -324,17 +326,30 @@ export async function ensureWorldBooted(options?: {
 
   const world = buildWorldFromMocks();
 
-  try {
-    if (options?.forceReseed) {
-      await persistWorld(world);
-    } else {
-      const hydrated = await hydrateDurableFromDb(world);
-      if (!hydrated) {
+  // Never block the request path on durable DB (critical on Vercel).
+  const dbWork = (async () => {
+    try {
+      if (options?.forceReseed) {
         await persistWorld(world);
+      } else {
+        const hydrated = await hydrateDurableFromDb(world);
+        if (!hydrated) {
+          await persistWorld(world);
+        }
       }
+    } catch (err) {
+      console.warn("[nexus] DB persist/hydrate failed; using in-memory only", err);
     }
-  } catch (err) {
-    console.warn("[nexus] DB persist/hydrate failed; using in-memory only", err);
+  })();
+
+  // Local/dev can await briefly; serverless returns immediately on memory world.
+  if (!process.env.VERCEL) {
+    await Promise.race([
+      dbWork,
+      new Promise((resolve) => setTimeout(resolve, 2500)),
+    ]);
+  } else {
+    void dbWork;
   }
 
   replaceWorld(world);
@@ -344,6 +359,7 @@ export async function ensureWorldBooted(options?: {
 
 export async function syncTaskToDb(task: WorldState["tasks"][number]) {
   const db = await getDb();
+  if (!db) return;
   const existing = await db
     .select()
     .from(schema.tasks)
@@ -360,11 +376,13 @@ export async function syncTaskToDb(task: WorldState["tasks"][number]) {
 
 export async function syncNoteToDb(note: WorldState["notes"][number]) {
   const db = await getDb();
+  if (!db) return;
   await db.insert(schema.notes).values(note).onConflictDoNothing();
 }
 
 export async function syncActivityToDb(activity: Activity) {
   const db = await getDb();
+  if (!db) return;
   await db
     .insert(schema.activities)
     .values({

@@ -76,27 +76,30 @@ function commercialFrom(
 }
 
 function applyPatch(
-  prev: SnapshotBundle,
+  prev: SnapshotBundle | undefined,
   patch: LivePatch
 ): SnapshotBundle {
-  const organisations = patch.organisations ?? prev.organisations;
-  const clusters = patch.clusters ?? prev.clusters;
-  const incidents = patch.incidents ?? prev.incidents;
-  const opportunities = patch.opportunities ?? prev.opportunities;
+  const organisations = patch.organisations ?? prev?.organisations ?? [];
+  const clusters = patch.clusters ?? prev?.clusters ?? [];
+  const incidents = patch.incidents ?? prev?.incidents ?? [];
+  const opportunities = patch.opportunities ?? prev?.opportunities ?? [];
   return {
-    ...prev,
     tick: patch.tick,
     fleet: patch.fleet,
     organisations,
     clients: organisations.map(organisationToClient),
     clusters,
     incidents,
-    networkEvents: patch.networkEvents ?? prev.networkEvents,
-    activities: patch.activities ?? prev.activities,
-    tasks: patch.tasks ?? prev.tasks,
-    notes: patch.notes ?? prev.notes,
+    networkEvents: patch.networkEvents ?? prev?.networkEvents ?? [],
+    activities: patch.activities ?? prev?.activities ?? [],
+    tasks: patch.tasks ?? prev?.tasks ?? [],
+    notes: patch.notes ?? prev?.notes ?? [],
     opportunities,
-    teamActivity: patch.teamActivity ?? prev.teamActivity,
+    teamActivity: patch.teamActivity ?? prev?.teamActivity ?? [],
+    rollouts: prev?.rollouts ?? [],
+    attentionItems: prev?.attentionItems ?? [],
+    teamMembers: prev?.teamMembers ?? [],
+    relationships: prev?.relationships ?? [],
     regionSummaries: regionSummariesFrom(clusters, incidents),
     commercial: commercialFrom(opportunities, organisations),
   };
@@ -110,30 +113,35 @@ export function useNexusSnapshot() {
     queryFn: fetchSnapshot,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
+    retry: 2,
   });
 
   useEffect(() => {
-    const es = new EventSource("/api/live/stream");
+    if (typeof window === "undefined") return;
+    let es: EventSource;
+    try {
+      es = new EventSource("/api/live/stream");
+    } catch {
+      return;
+    }
 
     const onSnapshot = (ev: MessageEvent) => {
       try {
         const patch = JSON.parse(ev.data) as LivePatch;
-        queryClient.setQueryData<SnapshotBundle>(queryKeys.snapshot, (prev) => {
-          if (!prev) return prev;
-          return applyPatch(prev, patch);
-        });
+        queryClient.setQueryData<SnapshotBundle>(queryKeys.snapshot, (prev) =>
+          applyPatch(prev, patch)
+        );
       } catch {
-        // ignore
+        // ignore malformed frames
       }
     };
 
     const onPatch = (ev: MessageEvent) => {
       try {
         const patch = JSON.parse(ev.data) as LivePatch;
-        queryClient.setQueryData<SnapshotBundle>(queryKeys.snapshot, (prev) => {
-          if (!prev) return prev;
-          return applyPatch(prev, patch);
-        });
+        queryClient.setQueryData<SnapshotBundle>(queryKeys.snapshot, (prev) =>
+          applyPatch(prev, patch)
+        );
       } catch {
         // ignore
       }
@@ -141,9 +149,6 @@ export function useNexusSnapshot() {
 
     es.addEventListener("snapshot", onSnapshot);
     es.addEventListener("patch", onPatch);
-    es.onerror = () => {
-      // Browser will reconnect EventSource automatically
-    };
 
     return () => {
       es.removeEventListener("snapshot", onSnapshot);

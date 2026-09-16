@@ -13,7 +13,6 @@ import {
   relativeTime,
 } from "@/lib/utils";
 import { Sparkline } from "@/components/charts/Sparkline";
-import { LiveChart } from "@/components/charts/LiveChart";
 import {
   Badge,
   Button,
@@ -30,6 +29,13 @@ import {
   useLiveTasks,
 } from "@/lib/query/hooks";
 import { useCreateNote } from "@/lib/query/mutations";
+import dynamic from "next/dynamic";
+
+const LiveChart = dynamic(
+  () =>
+    import("@/components/charts/LiveChart").then((m) => m.LiveChart),
+  { ssr: false }
+);
 
 export function ClientDossier({ clientId }: { clientId: string }) {
   const { client, data: org, isLoading } = useLiveOrganisation(clientId);

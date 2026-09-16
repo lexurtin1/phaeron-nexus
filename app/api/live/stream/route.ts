@@ -3,6 +3,7 @@ import { bootNexusRuntime } from "@/server/live/runtime";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
 export async function GET() {
   await bootNexusRuntime();

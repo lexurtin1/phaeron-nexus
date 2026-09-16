@@ -17,7 +17,13 @@ import {
   useLiveRollouts,
   useNexusSnapshot,
 } from "@/lib/query/hooks";
-import { LiveChart } from "@/components/charts/LiveChart";
+import dynamic from "next/dynamic";
+
+const LiveChart = dynamic(
+  () =>
+    import("@/components/charts/LiveChart").then((m) => m.LiveChart),
+  { ssr: false }
+);
 
 function ClusterDrawer({
   cluster,

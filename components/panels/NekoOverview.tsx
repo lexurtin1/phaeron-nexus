@@ -34,7 +34,13 @@ import {
   clientsForCountryIso,
 } from "@/lib/neko-adapters";
 import { useNexusSnapshot } from "@/lib/query/hooks";
-import { LiveChart } from "@/components/charts/LiveChart";
+import dynamic from "next/dynamic";
+
+const LiveChart = dynamic(
+  () =>
+    import("@/components/charts/LiveChart").then((m) => m.LiveChart),
+  { ssr: false }
+);
 
 type KpiKey =
   | "deployments"
@@ -109,7 +115,7 @@ function RankRow({
 export function NekoOverview() {
   const [selectedKpi, setSelectedKpi] = useState<KpiKey | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const { data: snapshot, isLoading } = useNexusSnapshot();
+  const { data: snapshot, isLoading, isError, error, refetch } = useNexusSnapshot();
 
   const clients = snapshot?.clients ?? [];
   const clusters = snapshot?.clusters ?? [];
@@ -196,6 +202,24 @@ export function NekoOverview() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
         Connecting to Nexus LivePulse…
+      </div>
+    );
+  }
+
+  if (isError && !snapshot) {
+    return (
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-sm">
+        <p className="text-muted-foreground">
+          LivePulse unavailable
+          {error instanceof Error ? ` · ${error.message}` : ""}.
+        </p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="rounded-lg border border-border bg-card px-3 py-1.5 text-[12px] font-semibold"
+        >
+          Retry
+        </button>
       </div>
     );
   }

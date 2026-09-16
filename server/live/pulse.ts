@@ -314,6 +314,15 @@ export function ensureLivePulse(): void {
   if (typeof timer.unref === "function") timer.unref();
 }
 
+/** Advance one LivePulse tick (used on Vercel where intervals are unreliable). */
+export function advanceLivePulse(): void {
+  try {
+    tickOnce();
+  } catch (err) {
+    console.error("[LivePulse]", err);
+  }
+}
+
 export function getLiveSnapshot(): LivePatch {
   return buildLivePatch(getWorld());
 }
